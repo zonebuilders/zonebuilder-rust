@@ -38,7 +38,9 @@ mod tests {
     use super::*;
     #[test]
     fn it_works() {
-        clockboard(Point::new(0.0, 0.0), 2, vec![1.0], None);
+        let polygon_list = clockboard(Point::new(0.0, 0.0), 2, vec![1.0], None);
+        let geojson_list = geojson::Value::from(&polygon_list[0]);
+        println!("{}", geojson_list);
         assert!(false)
     }
 }

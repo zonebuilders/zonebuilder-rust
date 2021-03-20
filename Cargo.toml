@@ -4,9 +4,6 @@ version = "0.1.0"
 authors = ["Robin Lovelace <rob00x@gmail.com>"]
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-geo = "0.17.1"
-
-
+geo = { version = "0.17.1", features=["use-serde"] }
+geojson = { version = "0.22.0", features=["geo-types"] }
