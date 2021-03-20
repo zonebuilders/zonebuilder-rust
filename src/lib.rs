@@ -14,7 +14,7 @@ pub fn clockboard(
     polygons
 }
 
-fn makecircle(centerpoint: Point<f64>, radius: f64) -> Polygon<f64> {
+pub fn makecircle(centerpoint: Point<f64>, radius: f64) -> Polygon<f64> {
     // hardcode num vertices - can be argument later
     let num_vertices = 121;
 
