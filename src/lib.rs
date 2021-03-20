@@ -2,29 +2,22 @@ use geo::{LineString, Point, Polygon};
 use std::default::Default;
 
 // See https://stackoverflow.com/questions/24047686
-// #[derive(Debug)]
-// pub struct Params {
-//     n_circles: usize,
-//     distances: Vec<f64>,
-// }
-
-// impl Default for Params {
-//     fn default() -> Self {
-//         // todo: distances should be:
-//         // zonebuilder::zb_100_triangular_numbers
-//         // 1    3    6   10   15   21   28   36   45   55   66 ...
-//         Params { n_circles: 5, distances: 10.0}
-//     }
-// }
-
-// Trying again
-// https://doc.rust-lang.org/std/default/trait.Default.html
-#[derive(Default)]
-struct SomeOptions {
-    n_circles: usize 5,
-    distances: 10.0,
+#[derive(Debug)]
+pub struct Params {
+    n_circles: usize,
+    distances: Vec<f64>,
 }
 
+// https://doc.rust-lang.org/std/default/trait.Default.html
+
+impl Default for Params {
+    fn default() -> Self {
+        // todo: distances should be:
+        // zonebuilder::zb_100_triangular_numbers
+        // 1    3    6   10   15   21   28   36   45   55   66 ...
+        Params { n_circles: 5, distances: vec![1.0, 3.0, 6.0, 10.0, 15.0]}
+    }
+}
 
 
 pub fn clockboard(
@@ -32,10 +25,11 @@ pub fn clockboard(
     num_segments: usize,
     radii: Vec<f64>,
     boundary: Option<Polygon<f64>>,
-    &..SomeOptions::default(),
+    params: (..Params),
 ) -> Vec<Polygon<f64>> {
-    // test options worked
-    println!("{:?}", polygons[0]);
+    // test options worked // no idea if this next line is useful (probably not)
+    // let options = Params {n_circles: 42 ..Default::Default} 
+    println!("{:?}", n_circles);
     let mut polygons = Vec::new();
     let circle = makecircle(centerpoint, radii[0]);
     polygons.push(circle);
