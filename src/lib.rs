@@ -5,6 +5,7 @@ use std::default::Default;
 #[derive(Debug)]
 pub struct Params {
     n_circles: usize,
+    num_segments: usize,
     distances: Vec<f64>,
 }
 
@@ -15,7 +16,7 @@ impl Default for Params {
         // todo: distances should be:
         // zonebuilder::zb_100_triangular_numbers
         // 1    3    6   10   15   21   28   36   45   55   66 ...
-        Params { n_circles: 5, distances: vec![1.0, 3.0, 6.0, 10.0, 15.0]}
+        Params { n_circles: 5, num_segments: 12, distances: vec![1.0, 3.0, 6.0, 10.0, 15.0]}
     }
 }
 
@@ -25,7 +26,7 @@ pub fn clockboard(
     num_segments: usize,
     radii: Vec<f64>,
     boundary: Option<Polygon<f64>>,
-    params: (..Params),
+    params: Params,
 ) -> Vec<Polygon<f64>> {
     // test options worked // no idea if this next line is useful (probably not)
     // let options = Params {n_circles: 42 ..Default::Default} 
