@@ -13,7 +13,7 @@ impl Default for Params {
         // todo: distances should be:
         // zonebuilder::zb_100_triangular_numbers
         // 1    3    6   10   15   21   28   36   45   55   66 ...
-        Params { n_circles: 5, distances: 10}
+        Params { n_circles: 5, distances: 10.0}
     }
 }
 
@@ -23,7 +23,7 @@ pub fn clockboard(
     num_segments: usize,
     radii: Vec<f64>,
     boundary: Option<Polygon<f64>>,
-    ..params::default()
+    &..Params::default(),
 ) -> Vec<Polygon<f64>> {
     // test options worked
     println!("{:?}", polygons[0]);
