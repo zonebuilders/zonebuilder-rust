@@ -12,14 +12,19 @@ Run the CLI:
 cargo run > circle.geojson
 ```
 
-Then read in the GeoJSON file with another tool, e.g.:
+Take a look at the output:
 
-```{r}
+```{r, engine='bash'}
+head -c 80 circle.geojson
+```
+
+Then read in the GeoJSON file with another tool, e.g. R:
+
+```{r circle}
 circle = sf::read_sf("circle.geojson")
 plot(circle)
 file.remove("circle.geojson")
 ```
-
 
 
 <!--

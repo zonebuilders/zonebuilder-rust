@@ -9,7 +9,6 @@ Run the CLI:
 cargo run > circle.geojson
 ```
 
-    ## bash: /home/robin/.local/share/r-miniconda/envs/r-reticulate/lib/libtinfo.so.6: no version information available (required by bash)
     ## warning: unused variable: `num_segments`
     ##  --> src/lib.rs:5:5
     ##   |
@@ -29,14 +28,22 @@ cargo run > circle.geojson
     ##     Finished dev [unoptimized + debuginfo] target(s) in 0.01s
     ##      Running `target/debug/zonebuilder`
 
-Then read in the GeoJSON file with another tool, e.g.:
+Take a look at the output:
+
+``` bash
+head -c 80 circle.geojson
+```
+
+    ## {"coordinates":[[[1.0,0.0],[0.998652088398823,0.05190381813189974],[0.9946119873
+
+Then read in the GeoJSON file with another tool, e.g. R:
 
 ``` r
 circle = sf::read_sf("circle.geojson")
 plot(circle)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+![](README_files/figure-gfm/circle-1.png)<!-- -->
 
 ``` r
 file.remove("circle.geojson")
