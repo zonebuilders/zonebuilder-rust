@@ -1,16 +1,35 @@
 use geo::{LineString, Point, Polygon};
+use std::default::Default;
+
+// See https://stackoverflow.com/questions/24047686
+#[derive(Debug)]
+pub struct Params {
+    n_circles: usize,
+    distances: Vec<f64>,
+}
+
+impl Default for Params {
+    fn default() -> Self {
+        // todo: distances should be:
+        // zonebuilder::zb_100_triangular_numbers
+        // 1    3    6   10   15   21   28   36   45   55   66 ...
+        Params { n_circles: 5, distances: 10}
+    }
+}
+
 
 pub fn clockboard(
     centerpoint: Point<f64>,
     num_segments: usize,
     radii: Vec<f64>,
     boundary: Option<Polygon<f64>>,
+    ..params::default()
 ) -> Vec<Polygon<f64>> {
+    // test options worked
+    println!("{:?}", polygons[0]);
     let mut polygons = Vec::new();
     let circle = makecircle(centerpoint, radii[0]);
-    //println!("{:?}", circle);
     polygons.push(circle);
-    //println!("{:?}", polygons[0]);
     polygons
 }
 
