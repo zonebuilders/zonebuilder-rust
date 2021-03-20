@@ -14,22 +14,22 @@ pub fn clockboard(
     polygons
 }
 
+pub fn makecircle_matrix(x_coordinate: f64, y_coordinate: f64, radius: f64, num_vertices: usize) -> Vec<Vec<f64>> {
+    let mut vector_of_vectors = Vec::new();
+    for i in 0..num_vertices {
+        let angle: f64 = 2.0 * std::f64::consts::PI / (num_vertices as f64) * (i as f64);
+        let x = x_coordinate + radius * angle.cos();
+        let y = y_coordinate + radius * angle.sin();
+        vector_of_vectors.push(Vec::new(x, y));
+    }
+    vector_of_vectors
+}
+
 pub fn makecircle(centerpoint: Point<f64>, radius: f64) -> Polygon<f64> {
     // hardcode num vertices - can be argument later
     let num_vertices = 121;
-
-    let mut circle_points = Vec::new();
-
-    // in R: 1:num_vertices
-    for i in 0..num_vertices {
-        let angle: f64 = 2.0 * std::f64::consts::PI / (num_vertices as f64) * (i as f64);
-        let x = centerpoint.x() + radius * angle.cos();
-        let y = centerpoint.y() + radius * angle.sin();
-        circle_points.push(Point::new(x, y));
-    }
-
+    let circle_points = makecircle_matrix(centerpoint.x, centerpoint.y, radius);
     let polygon = Polygon::new(LineString::from(circle_points), vec![]);
-
     polygon
 }
 
