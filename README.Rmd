@@ -1,0 +1,46 @@
+---
+output: github_document
+---
+
+# zonebuilder
+
+A rust crate for building zones.
+
+Run the CLI:
+
+```{r, engine='bash'}
+cargo run > circle.geojson
+```
+
+Then read in the GeoJSON file with another tool, e.g.:
+
+```{r}
+circle = sf::read_sf("circle.geojson")
+plot(circle)
+file.remove("circle.geojson")
+```
+
+
+
+<!--
+The crate template was made with the following command:
+
+```bash
+cargo new --lib zonebuilder
+```
+
+```bash
+mv -v zonebuilder/* .               
+# renamed 'zonebuilder/Cargo.toml' -> './Cargo.toml'
+# renamed 'zonebuilder/src' -> './src'
+```
+
+Edit the .rs files in src folder.
+
+Then run:
+
+```bash
+cargo test
+```
+
+-->
