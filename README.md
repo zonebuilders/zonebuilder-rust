@@ -9,23 +9,18 @@ Run the CLI:
 cargo run > circle.geojson
 ```
 
-    ## warning: unused variable: `num_segments`
-    ##  --> src/lib.rs:5:5
-    ##   |
-    ## 5 |     num_segments: usize,
-    ##   |     ^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_num_segments`
-    ##   |
-    ##   = note: `#[warn(unused_variables)]` on by default
-    ## 
+    ##    Compiling zonebuilder v0.1.0 (/mnt/57982e2a-2874-4246-a6fe-115c199bc6bd/orgs/zonebuilders/zonebuilder-rust)
     ## warning: unused variable: `boundary`
-    ##  --> src/lib.rs:7:5
-    ##   |
-    ## 7 |     boundary: Option<Polygon<f64>>,
-    ##   |     ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_boundary`
+    ##   --> src/lib.rs:27:5
+    ##    |
+    ## 27 |     boundary: Option<Polygon<f64>>,
+    ##    |     ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_boundary`
+    ##    |
+    ##    = note: `#[warn(unused_variables)]` on by default
     ## 
-    ## warning: 2 warnings emitted
+    ## warning: 1 warning emitted
     ## 
-    ##     Finished dev [unoptimized + debuginfo] target(s) in 0.01s
+    ##     Finished dev [unoptimized + debuginfo] target(s) in 0.63s
     ##      Running `target/debug/zonebuilder`
 
 Take a look at the output:
