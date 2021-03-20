@@ -26,10 +26,11 @@ pub fn clockboard(
     num_segments: usize,
     radii: Vec<f64>,
     boundary: Option<Polygon<f64>>,
-    params: Params,
+    params: Params
 ) -> Vec<Polygon<f64>> {
     // test options worked // no idea if this next line is useful (probably not)
     // let options = Params {n_circles: 42 ..Default::Default} 
+    let options = Params { n_circles: 42, ..Default::default() };
     println!("{:?}", params.n_circles);
     let mut polygons = Vec::new();
     let circle = makecircle(centerpoint, radii[0]);
@@ -61,7 +62,7 @@ mod tests {
     use super::*;
     #[test]
     fn it_works() {
-        let polygon_list = clockboard(Point::new(0.0, 0.0), 2, vec![1.0], None, ..Default::default());
+        let polygon_list = clockboard(Point::new(0.0, 0.0), 2, vec![1.0], None, ..Params::default());
         let geojson_list = geojson::Value::from(&polygon_list[0]);
         println!("{}", geojson_list);
         assert!(false)
