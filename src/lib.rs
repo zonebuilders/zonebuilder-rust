@@ -1,4 +1,4 @@
-use geo::{LineString, Point, Polygon};
+use geo::{LineString, Point, Polygon, coords_iter::CoordsIter, map_coords::MapCoordsInplace};
 use std::default::Default;
 
 // See https://stackoverflow.com/questions/24047686
@@ -23,7 +23,7 @@ impl Default for Params {
 }
 
 fn round(poly: &mut Polygon<f64>, precision: usize) {
-    poly.exterior_mut(f64::trunc(before  * 100.0) / 100.0;)
+    poly.map_coords_inplace(|&(x, y)| (x + 1000., y * 2.))    
 }
 
 pub fn clockboard(
