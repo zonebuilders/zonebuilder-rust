@@ -22,6 +22,10 @@ impl Default for Params {
     }
 }
 
+fn round(poly: &mut Polygon<f64>, precision: usize) {
+    poly.exterior_mut(f64::trunc(before  * 100.0) / 100.0;)
+}
+
 pub fn clockboard(
     centerpoint: Point<f64>,
     params: Params,
