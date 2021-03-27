@@ -7,7 +7,8 @@ pub struct Params {
     n_circles: usize,
     num_segments: usize,
     distances: Vec<f64>,
-    num_vertices: usize
+    num_vertices: usize,
+    precision: usize
 }
 
 // https://doc.rust-lang.org/std/default/trait.Default.html
