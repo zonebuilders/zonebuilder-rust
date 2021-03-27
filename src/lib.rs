@@ -1,4 +1,4 @@
-use geo::{coords_iter::CoordsIter, map_coords::MapCoordsInplace, LineString, Point, Polygon};
+use geo::{map_coords::MapCoordsInplace, LineString, Point, Polygon};
 use std::convert::TryInto;
 use std::default::Default;
 
@@ -38,11 +38,11 @@ fn round(poly: &mut Polygon<f64>, precision: usize) {
 pub fn clockboard(
     centerpoint: Point<f64>,
     params: Params,
-    boundary: Option<Polygon<f64>>,
+    //boundary: Option<Polygon<f64>>,
 ) -> Vec<Polygon<f64>> {
     let mut polygons = Vec::new();
     for i in params.distances {
-        println!("{}", i);
+        // println!("{}", i); // debugging
         let circle = makecircle(centerpoint, i, params.num_vertices);
         polygons.push(circle);
     }
