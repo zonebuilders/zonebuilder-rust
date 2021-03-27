@@ -23,7 +23,8 @@ impl Default for Params {
             n_circles: 5,
             num_segments: 12,
             distances: vec![1.0, 3.0, 6.0, 10.0, 15.0],
-            num_vertices: 121,
+            // num_vertices: 121,
+            num_vertices: 12,
             precision: 6,
         }
     }
@@ -41,8 +42,10 @@ pub fn clockboard(
     boundary: Option<Polygon<f64>>,
 ) -> Vec<Polygon<f64>> {
     let mut polygons = Vec::new();
-    let circle = makecircle(centerpoint, params.distances[0], params.num_vertices);
-    polygons.push(circle);
+    for i in params.distances {
+        let circle = makecircle(centerpoint, i, params.num_vertices);
+        polygons.push(circle);
+    }
 
     for polygon in &mut polygons {
         round(polygon, params.precision);
