@@ -18,7 +18,7 @@ impl Default for Params {
         // todo: distances should be:
         // zonebuilder::zb_100_triangular_numbers
         // 1    3    6   10   15   21   28   36   45   55   66 ...
-        Params { n_circles: 5, num_segments: 12, distances: vec![1.0, 3.0, 6.0, 10.0, 15.0], num_vertices: 121}
+        Params { n_circles: 5, num_segments: 12, distances: vec![1.0, 3.0, 6.0, 10.0, 15.0], num_vertices: 121, precision: 5}
     }
 }
 
