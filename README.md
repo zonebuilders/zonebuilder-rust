@@ -9,18 +9,7 @@ Run the CLI:
 cargo run > circle.geojson
 ```
 
-    ##    Compiling zonebuilder v0.1.0 (/mnt/57982e2a-2874-4246-a6fe-115c199bc6bd/orgs/zonebuilders/zonebuilder-rust)
-    ## warning: unused variable: `boundary`
-    ##   --> src/lib.rs:27:5
-    ##    |
-    ## 27 |     boundary: Option<Polygon<f64>>,
-    ##    |     ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_boundary`
-    ##    |
-    ##    = note: `#[warn(unused_variables)]` on by default
-    ## 
-    ## warning: 1 warning emitted
-    ## 
-    ##     Finished dev [unoptimized + debuginfo] target(s) in 0.63s
+    ##     Finished dev [unoptimized + debuginfo] target(s) in 0.02s
     ##      Running `target/debug/zonebuilder`
 
 Take a look at the output:
@@ -29,7 +18,7 @@ Take a look at the output:
 head -c 80 circle.geojson
 ```
 
-    ## {"coordinates":[[[1.0,0.0],[0.998652088398823,0.05190381813189974],[0.9946119873
+    ## {"coordinates":[[[6.0,0.0],[5.196152,2.999999],[3.0,5.196152],[0.0,6.0],[-2.9999
 
 Then read in the GeoJSON file with another tool, e.g. R:
 
