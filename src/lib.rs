@@ -1,5 +1,6 @@
 use geo::{coords_iter::CoordsIter, map_coords::MapCoordsInplace, LineString, Point, Polygon};
 use std::default::Default;
+use std::convert::TryInto;
 
 // See https://stackoverflow.com/questions/24047686
 #[derive(Debug)]
@@ -23,15 +24,16 @@ impl Default for Params {
             num_segments: 12,
             distances: vec![1.0, 3.0, 6.0, 10.0, 15.0],
             num_vertices: 121,
-            precision: 5,
+            precision: 6,
         }
     }
 }
 
 fn round(poly: &mut Polygon<f64>, precision: usize) {
     // hardcoded 2 d.p. todo: update
+    let p = 10_usize.pow(precision.try_into().unwrap()) as f64;
     poly.map_coords_inplace(|&(x, y)| {
-        (f64::trunc(x * 100.0) / 100.0, f64::trunc(y * 100.0) / 100.0)
+        (f64::trunc(x * p) / p, f64::trunc(y * p) / p)
     })
 }
 
@@ -43,7 +45,12 @@ pub fn clockboard(
     let mut polygons = Vec::new();
     let circle = makecircle(centerpoint, params.distances[0], params.num_vertices);
     polygons.push(circle);
-    round(polygons, params.precision)
+
+    for polygon in &mut polygons {
+        round(polygon, params.precision);
+      }
+
+    polygons
 }
 
 fn makecircle(centerpoint: Point<f64>, radius: f64, num_vertices: usize) -> Polygon<f64> {
