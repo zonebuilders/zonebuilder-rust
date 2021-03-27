@@ -31,7 +31,6 @@ impl Default for Params {
 }
 
 fn round(poly: &mut Polygon<f64>, precision: usize) {
-    // hardcoded 2 d.p. todo: update
     let p = 10_usize.pow(precision.try_into().unwrap()) as f64;
     poly.map_coords_inplace(|&(x, y)| (f64::trunc(x * p) / p, f64::trunc(y * p) / p))
 }
@@ -57,7 +56,6 @@ pub fn clockboard(
 
 fn makecircle(centerpoint: Point<f64>, radius: f64, num_vertices: usize) -> Polygon<f64> {
     let mut circle_points = Vec::new();
-    // in R: 1:num_vertices
     for i in 0..num_vertices {
         let angle: f64 = 2.0 * std::f64::consts::PI / (num_vertices as f64) * (i as f64);
         let x = centerpoint.x() + radius * angle.cos();
