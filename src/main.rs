@@ -1,6 +1,6 @@
 use geo::Point;
-use zonebuilder::Params;
 use zonebuilder::clockboard;
+use zonebuilder::Params;
 
 fn main() {
     let polygon_list = clockboard(Point::new(0.0, 0.0), Params::default(), None);

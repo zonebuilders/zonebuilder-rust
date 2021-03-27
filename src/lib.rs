@@ -1,6 +1,6 @@
 use geo::{coords_iter::CoordsIter, map_coords::MapCoordsInplace, LineString, Point, Polygon};
-use std::default::Default;
 use std::convert::TryInto;
+use std::default::Default;
 
 // See https://stackoverflow.com/questions/24047686
 #[derive(Debug)]
@@ -32,9 +32,7 @@ impl Default for Params {
 fn round(poly: &mut Polygon<f64>, precision: usize) {
     // hardcoded 2 d.p. todo: update
     let p = 10_usize.pow(precision.try_into().unwrap()) as f64;
-    poly.map_coords_inplace(|&(x, y)| {
-        (f64::trunc(x * p) / p, f64::trunc(y * p) / p)
-    })
+    poly.map_coords_inplace(|&(x, y)| (f64::trunc(x * p) / p, f64::trunc(y * p) / p))
 }
 
 pub fn clockboard(
@@ -48,7 +46,7 @@ pub fn clockboard(
 
     for polygon in &mut polygons {
         round(polygon, params.precision);
-      }
+    }
 
     polygons
 }
