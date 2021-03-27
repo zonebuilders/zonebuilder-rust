@@ -43,6 +43,7 @@ pub fn clockboard(
 ) -> Vec<Polygon<f64>> {
     let mut polygons = Vec::new();
     for i in params.distances {
+        println!("{}", i);
         let circle = makecircle(centerpoint, i, params.num_vertices);
         polygons.push(circle);
     }
