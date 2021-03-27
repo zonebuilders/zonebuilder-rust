@@ -23,7 +23,8 @@ impl Default for Params {
 }
 
 fn round(poly: &mut Polygon<f64>, precision: usize) {
-    poly.map_coords_inplace(|&(x, y)| (x + 1000., y * 2.))    
+    // hardcoded 2 d.p. todo: update
+    poly.map_coords_inplace(|&(x, y)| (f64::trunc(x  * 100.0) / 100.0, f64::trunc(y  * 100.0) / 100.0))    
 }
 
 pub fn clockboard(
@@ -32,7 +33,7 @@ pub fn clockboard(
     boundary: Option<Polygon<f64>>,
 ) -> Vec<Polygon<f64>> {
     let mut polygons = Vec::new();
-    let circle = makecircle(centerpoint, params.distances[0], params.num_vertices);
+    let circle = makecircle(centerpoint, params.distances[0], params.num_vertices); 
     polygons.push(circle);
     polygons
 }
