@@ -28,7 +28,7 @@ cargo run > circle.geojson
 Take a look at the output:
 
 ```{r, engine='bash'}
-head -c 80 circle.geojson
+head -n 20 circle.geojson
 ```
 
 Then read in the GeoJSON file with another tool, e.g. R:
@@ -41,10 +41,10 @@ file.remove("circle.geojson")
 
 <!-- ## Tidy up -->
 
-```{r engine='bash'}
-cd ..
+```{r engine='bash', echo=FALSE, eval=FALSE}
+cd 
 pwd
-rm -rvf zonebuilder-rust
+# rm -rvf zonebuilder-rust
 ```
 
 

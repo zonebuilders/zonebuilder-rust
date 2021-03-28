@@ -16,9 +16,9 @@ cd zonebuilder-rust
 git checkout circles
 ```
 
-    ## Cloning into 'zonebuilder-rust'...
-    ## Switched to a new branch 'circles'
-    ## Branch 'circles' set up to track remote branch 'circles' from 'origin'.
+    ## fatal: destination path 'zonebuilder-rust' already exists and is not an empty directory.
+    ## Already on 'circles'
+    ## Your branch is up-to-date with 'origin/circles'.
 
 Run the CLI:
 
@@ -38,14 +38,13 @@ cargo run > circle.geojson
     ## 
     ## warning: 1 warning emitted
     ## 
-    ##    Compiling zonebuilder v0.1.0 (/home/robin/github-orgs/zonebuilders/zonebuilder-rust)
-    ##     Finished dev [unoptimized + debuginfo] target(s) in 0.37s
+    ##     Finished dev [unoptimized + debuginfo] target(s) in 0.02s
     ##      Running `target/debug/zonebuilder`
 
 Take a look at the output:
 
 ``` bash
-head -c 80 circle.geojson
+head -n 20 circle.geojson
 ```
 
     ## {
@@ -54,6 +53,20 @@ head -c 80 circle.geojson
     ##       "geometry": {
     ##         "coordinates": [
     ##           [
+    ##             [
+    ##               1.0,
+    ##               0.0
+    ##             ],
+    ##             [
+    ##               0.866025,
+    ##               0.499999
+    ##             ],
+    ##             [
+    ##               0.5,
+    ##               0.866025
+    ##             ],
+    ##             [
+    ##               0.0,
 
 Then read in the GeoJSON file with another tool, e.g. R:
 
@@ -70,6 +83,7 @@ file.remove("circle.geojson")
 
     ## [1] TRUE
 
+<!-- ## Tidy up -->
 <!--
 The crate template was made with the following command:
 
