@@ -17,6 +17,6 @@ fn main() {
 
     // Which we can print / dump / etc:
     
-    println!("{}", &gjstring);
+    println!("{}", &gjstring.unwrap());
 
 }
