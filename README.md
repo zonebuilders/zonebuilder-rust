@@ -18,7 +18,7 @@ Take a look at the output:
 head -c 80 circle.geojson
 ```
 
-    ## {"coordinates":[[[6.0,0.0],[5.196152,2.999999],[3.0,5.196152],[0.0,6.0],[-2.9999
+    ## {"coordinates":[[[1.0,0.0],[0.866025,0.499999],[0.5,0.866025],[0.0,1.0],[-0.4999
 
 Then read in the GeoJSON file with another tool, e.g. R:
 
