@@ -6,6 +6,19 @@ output: github_document
 
 A rust crate for building zones.
 
+To reproduce the example shown here you need to have the rust toolchain installed.
+
+Assuming you do, you can run the code as follows
+
+## Clone the repo
+
+```{r, engine='bash'}
+git clone https://github.com/zonebuilders/zonebuilder-rust.git
+cd zonebuilder-rust
+git checkout circles
+```
+
+
 Run the CLI:
 
 ```{r, engine='bash'}
@@ -25,6 +38,15 @@ circle = sf::read_sf("circle.geojson")
 plot(circle)
 file.remove("circle.geojson")
 ```
+
+<!-- ## Tidy up -->
+
+```{r engine='bash'}
+cd ..
+pwd
+rm -rvf zonebuilder-rust
+```
+
 
 
 <!--

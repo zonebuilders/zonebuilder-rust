@@ -3,13 +3,43 @@
 
 A rust crate for building zones.
 
+To reproduce the example shown here you need to have the rust toolchain
+installed.
+
+Assuming you do, you can run the code as follows
+
+## Clone the repo
+
+``` bash
+git clone https://github.com/zonebuilders/zonebuilder-rust.git
+cd zonebuilder-rust
+git checkout circles
+```
+
+    ## Cloning into 'zonebuilder-rust'...
+    ## Switched to a new branch 'circles'
+    ## Branch 'circles' set up to track remote branch 'circles' from 'origin'.
+
 Run the CLI:
 
 ``` bash
 cargo run > circle.geojson
 ```
 
-    ##     Finished dev [unoptimized + debuginfo] target(s) in 0.02s
+    ## warning: variable does not need to be mutable
+    ##   --> src/lib.rs:55:9
+    ##    |
+    ## 55 |     let mut features: Vec<Feature> = polygons
+    ##    |         ----^^^^^^^^
+    ##    |         |
+    ##    |         help: remove this `mut`
+    ##    |
+    ##    = note: `#[warn(unused_mut)]` on by default
+    ## 
+    ## warning: 1 warning emitted
+    ## 
+    ##    Compiling zonebuilder v0.1.0 (/home/robin/github-orgs/zonebuilders/zonebuilder-rust)
+    ##     Finished dev [unoptimized + debuginfo] target(s) in 0.37s
     ##      Running `target/debug/zonebuilder`
 
 Take a look at the output:
@@ -18,7 +48,12 @@ Take a look at the output:
 head -c 80 circle.geojson
 ```
 
-    ## {"coordinates":[[[1.0,0.0],[0.866025,0.499999],[0.5,0.866025],[0.0,1.0],[-0.4999
+    ## {
+    ##   "features": [
+    ##     {
+    ##       "geometry": {
+    ##         "coordinates": [
+    ##           [
 
 Then read in the GeoJSON file with another tool, e.g. R:
 
