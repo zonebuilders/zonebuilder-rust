@@ -1,4 +1,5 @@
 use geo::{map_coords::MapCoordsInplace, LineString, Point, Polygon};
+use geojson::{GeoJson, Feature, FeatureCollection, Geometry};
 use std::convert::TryInto;
 use std::default::Default;
 
@@ -39,7 +40,7 @@ pub fn clockboard(
     centerpoint: Point<f64>,
     params: Params,
     //boundary: Option<Polygon<f64>>,
-) -> Vec<Polygon<f64>> {
+) -> GeoJson {
     let mut polygons = Vec::new();
     for i in params.distances {
         // println!("{}", i); // debugging
@@ -51,7 +52,25 @@ pub fn clockboard(
         round(polygon, params.precision);
     }
 
-    polygons
+    let mut features: Vec<Feature> = polygons
+    .iter()
+    .map(|poly| Feature {
+        bbox: None,
+        geometry: Some(Geometry::from(poly)),
+        id: None,
+        properties: None,
+        foreign_members: None,
+    })
+    .collect();
+
+    let fc = FeatureCollection {
+        bbox: None,
+        features,
+        foreign_members: None,
+    };
+
+    let gj = GeoJson::from(fc);
+    gj
 }
 
 fn makecircle(centerpoint: Point<f64>, radius: f64, num_vertices: usize) -> Polygon<f64> {
