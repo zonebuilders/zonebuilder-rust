@@ -1,4 +1,5 @@
-use geo::{coords_iter::CoordsIter, map_coords::MapCoordsInplace, LineString, Point, Polygon};
+use geo::{map_coords::MapCoordsInplace, LineString, Point, Polygon};
+use geojson::{GeoJson, Feature, FeatureCollection, Geometry};
 use std::convert::TryInto;
 use std::default::Default;
 
@@ -23,14 +24,14 @@ impl Default for Params {
             n_circles: 5,
             num_segments: 12,
             distances: vec![1.0, 3.0, 6.0, 10.0, 15.0],
-            num_vertices: 121,
+            // num_vertices: 121,
+            num_vertices: 12,
             precision: 6,
         }
     }
 }
 
 fn round(poly: &mut Polygon<f64>, precision: usize) {
-    // hardcoded 2 d.p. todo: update
     let p = 10_usize.pow(precision.try_into().unwrap()) as f64;
     poly.map_coords_inplace(|&(x, y)| (f64::trunc(x * p) / p, f64::trunc(y * p) / p))
 }
@@ -38,22 +39,42 @@ fn round(poly: &mut Polygon<f64>, precision: usize) {
 pub fn clockboard(
     centerpoint: Point<f64>,
     params: Params,
-    boundary: Option<Polygon<f64>>,
-) -> Vec<Polygon<f64>> {
+    //boundary: Option<Polygon<f64>>,
+) -> GeoJson {
     let mut polygons = Vec::new();
-    let circle = makecircle(centerpoint, params.distances[0], params.num_vertices);
-    polygons.push(circle);
+    for i in params.distances {
+        // println!("{}", i); // debugging
+        let circle = makecircle(centerpoint, i, params.num_vertices);
+        polygons.push(circle);
+    }
 
     for polygon in &mut polygons {
         round(polygon, params.precision);
     }
 
-    polygons
+    let mut features: Vec<Feature> = polygons
+    .iter()
+    .map(|poly| Feature {
+        bbox: None,
+        geometry: Some(Geometry::from(poly)),
+        id: None,
+        properties: None,
+        foreign_members: None,
+    })
+    .collect();
+
+    let fc = FeatureCollection {
+        bbox: None,
+        features,
+        foreign_members: None,
+    };
+
+    let gj = GeoJson::from(fc);
+    gj
 }
 
 fn makecircle(centerpoint: Point<f64>, radius: f64, num_vertices: usize) -> Polygon<f64> {
     let mut circle_points = Vec::new();
-    // in R: 1:num_vertices
     for i in 0..num_vertices {
         let angle: f64 = 2.0 * std::f64::consts::PI / (num_vertices as f64) * (i as f64);
         let x = centerpoint.x() + radius * angle.cos();

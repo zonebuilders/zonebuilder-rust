@@ -3,35 +3,96 @@
 
 A rust crate for building zones.
 
-Run the CLI:
+It is an experimental and in-progress project to implement the
+functionality in the
+[`zonebuilder`](https://zonebuilders.github.io/zonebuilder/) R package
+in the systems programming language Rust.
+
+Why?
+
+-   It should eventually enable more people to benefit from free and
+    open source software for creating zoning systems because Rust
+    enables the creation of binaries for Windows, Mac and the free and
+    open source Linux operating system on which the package was
+    originally developed (Rust can also compile to
+    [WASM](https://webassembly.org/) enabling complex applications such
+    as [A/B Street](https://github.com/a-b-street/abstreet) to run in
+    browser — the thinking being if that can run in browser surely as
+    simple application to build zones can!)
+-   Computational efficiency: the process of building zones is not
+    particularly computationally intensive but this Rust crate may
+    eventually be fast and quick to install and use, possibly from
+    higher level languages such as R using Rust interfaces such as
+    [`extendr`](https://github.com/extendr/extendr)
+-   For fun and education: as a simple crate it serves as a good way to
+    show how Rust code is organised and how it works
+
+To reproduce the example shown here you need to have the rust toolchain
+installed.
+
+Assuming you do, you can run the code as follows
+
+### Clone the repo
+
+``` bash
+git clone https://github.com/zonebuilders/zonebuilder-rust.git
+cd zonebuilder-rust
+git checkout circles
+```
+
+    ## Cloning into 'zonebuilder-rust'...
+    ## Switched to a new branch 'circles'
+    ## Branch 'circles' set up to track remote branch 'circles' from 'origin'.
+
+### Run the CLI:
 
 ``` bash
 cargo run > circle.geojson
 ```
 
-    ##    Compiling zonebuilder v0.1.0 (/mnt/57982e2a-2874-4246-a6fe-115c199bc6bd/orgs/zonebuilders/zonebuilder-rust)
-    ## warning: unused variable: `boundary`
-    ##   --> src/lib.rs:27:5
+    ## warning: variable does not need to be mutable
+    ##   --> src/lib.rs:55:9
     ##    |
-    ## 27 |     boundary: Option<Polygon<f64>>,
-    ##    |     ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_boundary`
+    ## 55 |     let mut features: Vec<Feature> = polygons
+    ##    |         ----^^^^^^^^
+    ##    |         |
+    ##    |         help: remove this `mut`
     ##    |
-    ##    = note: `#[warn(unused_variables)]` on by default
+    ##    = note: `#[warn(unused_mut)]` on by default
     ## 
     ## warning: 1 warning emitted
     ## 
-    ##     Finished dev [unoptimized + debuginfo] target(s) in 0.63s
+    ##     Finished dev [unoptimized + debuginfo] target(s) in 0.03s
     ##      Running `target/debug/zonebuilder`
 
 Take a look at the output:
 
 ``` bash
-head -c 80 circle.geojson
+head -n 20 circle.geojson
 ```
 
-    ## {"coordinates":[[[1.0,0.0],[0.998652088398823,0.05190381813189974],[0.9946119873
+    ## {
+    ##   "features": [
+    ##     {
+    ##       "geometry": {
+    ##         "coordinates": [
+    ##           [
+    ##             [
+    ##               1.0,
+    ##               0.0
+    ##             ],
+    ##             [
+    ##               0.866025,
+    ##               0.499999
+    ##             ],
+    ##             [
+    ##               0.5,
+    ##               0.866025
+    ##             ],
+    ##             [
+    ##               0.0,
 
-Then read in the GeoJSON file with another tool, e.g. R:
+### Then read in the GeoJSON file with another tool, e.g. R (this step runs from an R console that has the `sf` library installed):
 
 ``` r
 circle = sf::read_sf("circle.geojson")
@@ -46,6 +107,7 @@ file.remove("circle.geojson")
 
     ## [1] TRUE
 
+<!-- ## Tidy up -->
 <!--
 The crate template was made with the following command:
 
