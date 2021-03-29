@@ -1,5 +1,5 @@
 use geo::{map_coords::MapCoordsInplace, LineString, Point, Polygon};
-use geojson::{GeoJson, Feature, FeatureCollection, Geometry};
+use geojson::{Feature, FeatureCollection, GeoJson, Geometry};
 use std::convert::TryInto;
 use std::default::Default;
 
@@ -25,7 +25,7 @@ impl Default for Params {
             num_segments: 12,
             distances: vec![1.0, 3.0, 6.0, 10.0, 15.0],
             // num_vertices: 121,
-            num_vertices: 12,
+            num_vertices: 121,
             precision: 6,
         }
     }
@@ -42,32 +42,48 @@ pub fn clockboard(
     //boundary: Option<Polygon<f64>>,
 ) -> GeoJson {
     let mut polygons = Vec::new();
-    for i in params.distances {
-        // println!("{}", i); // debugging
-        let circle = makecircle(centerpoint, i, params.num_vertices);
-        polygons.push(circle);
+    let mut irad_inner: f64 = 0.0;
+    if params.num_segments == 1 {
+        for i in params.distances {
+            let circle = makecircle(centerpoint, i, params.num_vertices);
+            polygons.push(circle);
+        }
+    } else {
+        for i in 0..params.distances.len() {
+            let irad = params.distances[i];
+            if i == 0 {
+                let irad_inner = 0.0;
+            } else {
+                let irad_inner = params.distances[(i - 1)];
+            }
+            for j in 0..params.num_segments {
+                let circle = clockpoly(
+                    centerpoint,
+                    irad,
+                    irad_inner,
+                    params.num_vertices,
+                    params.num_segments,
+                    j,
+                );
+                polygons.push(circle);
+            }
+        }
     }
 
     for polygon in &mut polygons {
         round(polygon, params.precision);
     }
 
-    // Create zoning system, starting with a single zone
-    // i will be the number of circles from the centre, j will be nth segment
-    let i: usize = 2
-
-
-
     let mut features: Vec<Feature> = polygons
-    .iter()
-    .map(|poly| Feature {
-        bbox: None,
-        geometry: Some(Geometry::from(poly)),
-        id: None,
-        properties: None,
-        foreign_members: None,
-    })
-    .collect();
+        .iter()
+        .map(|poly| Feature {
+            bbox: None,
+            geometry: Some(Geometry::from(poly)),
+            id: None,
+            properties: None,
+            foreign_members: None,
+        })
+        .collect();
 
     let fc = FeatureCollection {
         bbox: None,
@@ -92,20 +108,42 @@ fn makecircle(centerpoint: Point<f64>, radius: f64, num_vertices: usize) -> Poly
 }
 
 // Make a single clock polygon
-fn clockpoly(centerpoint: Point<f64>, radii: <f64>, num_vertices: usize, num_segments: usize, seg: usize) -> Polygon<f64> {
+pub fn clockpoly(
+    centerpoint: Point<f64>,
+    radius: f64,
+    inner_radius: f64,
+    num_vertices: usize,
+    num_segments: usize,
+    seg: usize,
+) -> Polygon<f64> {
     let mut circle_points = Vec::new();
+    let mut circle_points_inner = Vec::new();
+
     // Sequence of vertices
     // in R round(seq(1, 13, length.out = 12))
     // Number of vertices per segment
-    let n = num_vertices / num_segments
-    println!("{}", n)
-    let a = 0 + (seg - 1) * n 
-    for i in 0..num_vertices {
+    let n = num_vertices / num_segments;
+    let f = 0 + (seg) * n;
+    let t = 0 + (seg + 1) * n;
+    // Outer radius
+    let a = f..t;
+    for i in a {
         let angle: f64 = 2.0 * std::f64::consts::PI / (num_vertices as f64) * (i as f64);
         let x = centerpoint.x() + radius * angle.cos();
         let y = centerpoint.y() + radius * angle.sin();
+        // println!("{}", x);
+
         circle_points.push(Point::new(x, y));
     }
-    let polygon = Polygon::new(LineString::from(circle_points), vec![]);
+    // Inner radius
+    for i in (f..t).rev() {
+        let angle: f64 = 2.0 * std::f64::consts::PI / (num_vertices as f64) * (i as f64);
+        let x = centerpoint.x() + inner_radius * angle.cos();
+        let y = centerpoint.y() + inner_radius * angle.sin();
+        circle_points_inner.push(Point::new(x, y));
+    }
+
+    let circle_points_all = [circle_points, circle_points_inner].concat();
+    let polygon = Polygon::new(LineString::from(circle_points_all), vec![]);
     polygon
 }
