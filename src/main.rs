@@ -13,10 +13,10 @@ fn main() {
     // let result = serde_json::to_string_pretty(&geojson_list);
     // println!("{}", result.unwrap());
 
-    let gjstring = to_string_pretty(&gj);
+    let gjstring = to_string_pretty(&gj).unwrap();
 
     // Which we can print / dump / etc:
     
-    println!("{}", &gjstring.unwrap());
+    println!("{}", gjstring);
 
 }
