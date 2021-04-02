@@ -105,7 +105,7 @@ fn makecircle(centerpoint: Point<f64>, radius: f64, num_vertices: usize) -> Poly
 }
 
 // Make a single clock polygon
-pub fn clockpoly(
+fn clockpoly(
     centerpoint: Point<f64>,
     radius_outer: f64,
     radius_inner: f64,
@@ -121,30 +121,9 @@ pub fn clockpoly(
     // Number of vertices per segment
     let n = (num_vertices / num_segments) + 1;
     let f = seg * n;
-    let mut t = 1 + (seg + 1) * n;
-    let is_final_seg = num_segments == seg + 1;
-    // let is_final_seg = seg == 0;
-
-    // Aim: close final zone - tests to remove
-    eprintln!("{}", seg);
-    // eprintln!("{}", num_segments);
-    eprintln!("{}", is_final_seg);
-
-
-    if is_final_seg {
-        eprintln!("{}", t);
-        eprintln!("{}", f);
-        let t = 9 + (seg + 9) * n;
-        // let t = 0;
-        eprintln!("{}", t);
-    }
-    eprintln!("{}", seg);
-    eprintln!("{}", f);
-    eprintln!("{}", t);
-    let seq = f..t as usize;
+    let t = 1 + (seg + 1) * n;
+    let seq = f..t;
     let seq_reverse = (f..t).rev();
-
-    
     for i in seq {
         let angle: f64 = 2.0 * std::f64::consts::PI / (num_vertices as f64) * (i as f64);
         let x = centerpoint.x() + radius_outer * angle.cos();
@@ -157,7 +136,6 @@ pub fn clockpoly(
         let y = centerpoint.y() + radius_inner * angle.sin();
         arc_inner.push(Point::new(x, y));
     }
-
     let arcs = [arc_outer, arc_inner].concat();
     let polygon = Polygon::new(LineString::from(arcs), vec![]);
     polygon
