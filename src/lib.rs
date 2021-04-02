@@ -140,3 +140,18 @@ fn clockpoly(
     let polygon = Polygon::new(LineString::from(arcs), vec![]);
     polygon
 }
+
+// Todo: get this working and use in clockpoly: refactor
+// fn arc(angle1: f64, angle2: f64, num_vertices: usize, radius: f64, center: Point<f64>) -> Vec<Point<f64>> {
+//     let mut arc = Vec::new();
+//     // Todo: calculate sequence of numbers to iterate on
+//     // let seq = ...
+//     for i in seq {
+//         // let angle = ...
+//         let x = center.x() + radius * angle.cos();
+//         let y = center.y() + radius * angle.sin();
+//         arc.push(Point::new(x, y));
+//     }
+
+//     arc.push(x, y);
+// }
