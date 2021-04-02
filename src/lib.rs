@@ -39,7 +39,7 @@ pub fn clockboard(
     //boundary: Option<Polygon<f64>>,
 ) -> GeoJson {
     let mut polygons = Vec::new();
-    let mut irad_inner: f64 = 0.0;
+    let mut irad_inner: f64;
     if params.num_segments == 1 {
         for i in params.distances {
             let zone = makecircle(centerpoint, i, params.num_vertices);
@@ -49,9 +49,9 @@ pub fn clockboard(
         for i in 0..params.distances.len() {
             let irad = params.distances[i];
             if i == 0 {
-                let irad_inner = 0.0;
+                irad_inner = 0.0;
             } else {
-                let irad_inner = params.distances[(i - 1)];
+                irad_inner = params.distances[(i - 1)];
             }
             for j in 0..params.num_segments {
                 let zone = clockpoly(
@@ -71,7 +71,7 @@ pub fn clockboard(
         round(polygon, params.precision);
     }
 
-    let mut features: Vec<Feature> = polygons
+    let features: Vec<Feature> = polygons
         .iter()
         .map(|poly| Feature {
             bbox: None,
