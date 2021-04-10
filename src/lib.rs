@@ -131,13 +131,16 @@ fn clockpoly(
     // in R round(seq(from, to, length.out = num_segments))
     // Number of vertices per segment
     let n = num_vertices_arc;
+    // Number of vertices in the circle
     let nc = num_vertices_arc * num_segments;
     let f = seg * n;
     let t = 1 + (seg + 1) * n;
     let seq = f..t;
+    // Angle offset so first segment is North
+    let o = std::f64::consts::PI / (num_segments as f64);
     let seq_reverse = (f..t).rev();
     for i in seq {
-        let angle: f64 = 2.0 * std::f64::consts::PI / (nc as f64) * (i as f64);
+        let angle: f64 = 2.0 * std::f64::consts::PI / (nc as f64) * (i as f64) + o;
         let x = centerpoint.x() + radius_outer * angle.cos();
         let y = centerpoint.y() + radius_outer * angle.sin();
         arc_outer.push(Point::new(x, y));
