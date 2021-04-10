@@ -22,7 +22,7 @@ impl Default for Params {
             n_circles: 5,
             num_segments: 12,
             distances: vec![1.0, 3.0, 6.0, 10.0, 15.0],
-            num_vertices: 121,
+            num_vertices: 120,
             precision: 6,
         }
     }
@@ -120,8 +120,9 @@ fn clockpoly(
     // in R round(seq(from, to, length.out = num_segments))
     // Number of vertices per segment
     let n = num_vertices / num_segments;
-    let f = seg * n;
-    let t = 1 + (seg + 1) * n;
+    let f = (seg + 1) * n;
+    let t = 1 + (seg + 2) * n;
+    eprintln!("{}", seg);
     let seq = f..t;
     let seq_reverse = (f..t).rev();
     for i in seq {
