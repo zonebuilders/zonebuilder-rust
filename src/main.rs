@@ -12,20 +12,20 @@ struct Opt {
     // be used for the help message of the flag. The name of the
     // argument will be, by default, based on the name of the field.
     /// Activate debug mode
-    #[structopt(short, long)]
+    #[structopt(long)]
     debug: bool,
 
     // The number of occurrences of the `v/verbose` flag
     /// Verbose mode (-v, -vv, -vvv, etc.)
-    #[structopt(short, long, parse(from_occurrences))]
+    #[structopt(long, parse(from_occurrences))]
     verbose: u8,
 
     /// Set n_circles
-    #[structopt(short, long, default_value = "5")]
+    #[structopt(short = "c", long, default_value = "5")]
     n_circles: usize,
 
     /// Number of radial segments (12 by default)
-    #[structopt(short, long, default_value = "12")]
+    #[structopt(short = "s", long, default_value = "12")]
     num_segments: usize,
 
     /// Distances between concentric rings.
@@ -35,7 +35,7 @@ struct Opt {
     distances: Vec<f64>,
 
     /// Number of vertices per arc
-    #[structopt(short, long, default_value = "5")]
+    #[structopt(short = "v", long, default_value = "5")]
     num_vertices_arc: usize,
 
     /// Number of decimal places in the resulting output (GeoJSON) files.
