@@ -20,27 +20,34 @@ struct Opt {
     #[structopt(short, long, parse(from_occurrences))]
     verbose: u8,
 
-    /// Set speed
-    #[structopt(short, long, default_value = "42")]
-    speed: f64,
+    /// Set n_circles
+    #[structopt(short, long, default_value = "5")]
+    n_circles: usize,
+
+    /// Number of radial segments (12 by default)
+    #[structopt(short, long, default_value = "12")]
+    num_segments: usize,
+
+    /// Distances between concentric rings.
+    /// First 5 values of the triangular number sequence (1 to 15)
+    /// by default
+    #[structopt(short, long, default_value = "vec![1.0, 3.0, 6.0, 10.0, 15.0]")]
+    distances: Vec<f64>,
+
+    /// Number of vertices per arc
+    #[structopt(short, long, default_value = "5")]
+    num_vertices_arc: usize,
+
+    /// Number of decimal places in the resulting output (GeoJSON) files.
+    /// Set to 6 by default. Larger numbers mean more precision but
+    /// larger file sizes.
+    #[structopt(short, long, default_value = "5")]
+    precision: usize,
 
     /// Output file
     #[structopt(short, long, parse(from_os_str))]
     output: PathBuf,
 
-    // the long option will be translated by default to kebab case,
-    // i.e. `--nb-cars`.
-    /// Number of cars
-    #[structopt(short = "c", long)]
-    nb_cars: Option<i32>,
-
-    /// admin_level to consider
-    #[structopt(short, long)]
-    level: Vec<String>,
-
-    /// Files to process
-    #[structopt(name = "FILE", parse(from_os_str))]
-    files: Vec<PathBuf>,
 }
 
 fn main() {
