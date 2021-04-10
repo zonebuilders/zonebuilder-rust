@@ -119,7 +119,7 @@ fn clockpoly(
     // Sequence of vertices
     // in R round(seq(from, to, length.out = num_segments))
     // Number of vertices per segment
-    let n = (num_vertices / num_segments) + 1;
+    let n = num_vertices / num_segments;
     let f = seg * n;
     let t = 1 + (seg + 1) * n;
     let seq = f..t;
