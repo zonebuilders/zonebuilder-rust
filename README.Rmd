@@ -35,24 +35,32 @@ git checkout circles
 ### Run the CLI:
 
 ```{r, engine='bash'}
-cargo run > circle.geojson
+cargo run > zones.geojson
 ```
 
 Take a look at the output:
 
 ```{r, engine='bash'}
-head -n 20 circle.geojson
+head -n 20 zones.geojson
 ```
 
-### Then read in the GeoJSON file with another tool, e.g. R (this step runs from an R console that has the `sf` library installed):
+Then read in the GeoJSON file with another tool, e.g. R (this step runs from an R console that has the `sf` library installed):
 
 ```{r circle}
-circle = sf::read_sf("circle.geojson")
-plot(circle)
+zones = sf::read_sf("zones.geojson")
+plot(zones)
 # interactive version:
-# mapview::mapview(circle)
-file.remove("circle.geojson")
+# mapview::mapview(zones)
+file.remove("zones.geojson")
 ```
+
+You can generate the same plot in R with the `zonebuilder` package as follows:
+
+```{r rversion}
+zones = zonebuilder::zb_zone(x = "london", n_circles = 5)
+plot(zones$geometry)
+```
+
 
 <!-- ## Tidy up -->
 

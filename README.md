@@ -47,17 +47,16 @@ git checkout circles
 ### Run the CLI:
 
 ``` bash
-cargo run > circle.geojson
+cargo run > zones.geojson
 ```
 
-    ##    Compiling zonebuilder v0.1.0 (/home/robin/github-orgs/zonebuilders/zonebuilder-rust)
-    ##     Finished dev [unoptimized + debuginfo] target(s) in 0.65s
+    ##     Finished dev [unoptimized + debuginfo] target(s) in 0.02s
     ##      Running `target/debug/zonebuilder`
 
 Take a look at the output:
 
 ``` bash
-head -n 20 circle.geojson
+head -n 20 zones.geojson
 ```
 
     ## {
@@ -81,22 +80,40 @@ head -n 20 circle.geojson
     ##             [
     ##               0.987688,
 
-### Then read in the GeoJSON file with another tool, e.g. R (this step runs from an R console that has the `sf` library installed):
+Then read in the GeoJSON file with another tool, e.g. R (this step runs
+from an R console that has the `sf` library installed):
 
 ``` r
-circle = sf::read_sf("circle.geojson")
-plot(circle)
+zones = sf::read_sf("zones.geojson")
+plot(zones)
 ```
 
 ![](README_files/figure-gfm/circle-1.png)<!-- -->
 
 ``` r
 # interactive version:
-# mapview::mapview(circle)
-file.remove("circle.geojson")
+# mapview::mapview(zones)
+file.remove("zones.geojson")
 ```
 
     ## [1] TRUE
+
+You can generate the same plot in R with the `zonebuilder` package as
+follows:
+
+``` r
+zones = zonebuilder::zb_zone(x = "london", n_circles = 5)
+```
+
+    ## Loading required namespace: tmaptools
+
+    ## although coordinates are longitude/latitude, st_within assumes that they are planar
+
+``` r
+plot(zones$geometry)
+```
+
+![](README_files/figure-gfm/rversion-1.png)<!-- -->
 
 <!-- ## Tidy up -->
 <!--
