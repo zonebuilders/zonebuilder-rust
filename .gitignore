@@ -3,3 +3,4 @@ Cargo.lock
 .Rproj.user
 .Rhistory
 zonebuilder-rust
+*.geojson
