@@ -50,19 +50,7 @@ git checkout circles
 cargo run > circle.geojson
 ```
 
-    ## warning: variable does not need to be mutable
-    ##   --> src/lib.rs:55:9
-    ##    |
-    ## 55 |     let mut features: Vec<Feature> = polygons
-    ##    |         ----^^^^^^^^
-    ##    |         |
-    ##    |         help: remove this `mut`
-    ##    |
-    ##    = note: `#[warn(unused_mut)]` on by default
-    ## 
-    ## warning: 1 warning emitted
-    ## 
-    ##     Finished dev [unoptimized + debuginfo] target(s) in 0.03s
+    ##     Finished dev [unoptimized + debuginfo] target(s) in 0.02s
     ##      Running `target/debug/zonebuilder`
 
 Take a look at the output:
@@ -82,15 +70,15 @@ head -n 20 circle.geojson
     ##               0.0
     ##             ],
     ##             [
-    ##               0.866025,
-    ##               0.499999
+    ##               0.998629,
+    ##               0.052335
     ##             ],
     ##             [
-    ##               0.5,
-    ##               0.866025
+    ##               0.994521,
+    ##               0.104528
     ##             ],
     ##             [
-    ##               0.0,
+    ##               0.987688,
 
 ### Then read in the GeoJSON file with another tool, e.g. R (this step runs from an R console that has the `sf` library installed):
 
@@ -102,6 +90,8 @@ plot(circle)
 ![](README_files/figure-gfm/circle-1.png)<!-- -->
 
 ``` r
+# interactive version:
+# mapview::mapview(circle)
 file.remove("circle.geojson")
 ```
 

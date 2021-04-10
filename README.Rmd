@@ -49,6 +49,8 @@ head -n 20 circle.geojson
 ```{r circle}
 circle = sf::read_sf("circle.geojson")
 plot(circle)
+# interactive version:
+# mapview::mapview(circle)
 file.remove("circle.geojson")
 ```
 
