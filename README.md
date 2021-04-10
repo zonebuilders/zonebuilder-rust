@@ -50,7 +50,8 @@ git checkout circles
 cargo run > circle.geojson
 ```
 
-    ##     Finished dev [unoptimized + debuginfo] target(s) in 0.02s
+    ##    Compiling zonebuilder v0.1.0 (/home/robin/github-orgs/zonebuilders/zonebuilder-rust)
+    ##     Finished dev [unoptimized + debuginfo] target(s) in 0.65s
     ##      Running `target/debug/zonebuilder`
 
 Take a look at the output:

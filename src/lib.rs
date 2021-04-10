@@ -54,15 +54,26 @@ pub fn clockboard(
                 irad_inner = params.distances[(i - 1)];
             }
             for j in 0..params.num_segments {
-                let zone = clockpoly(
-                    centerpoint,
-                    irad,
-                    irad_inner,
-                    params.num_vertices_arc,
-                    params.num_segments,
-                    j,
-                );
-                polygons.push(zone);
+                if i != 0 {
+                    let zone = clockpoly(
+                        centerpoint,
+                        irad,
+                        irad_inner,
+                        params.num_vertices_arc,
+                        params.num_segments,
+                        j,
+                    );
+                    polygons.push(zone);
+                } else {
+                    let zone = makecircle(
+                        centerpoint,
+                        irad,
+                        params.num_vertices_arc * params.num_segments,
+                    );
+                    polygons.push(zone);
+                }
+
+
             }
         }
     }
