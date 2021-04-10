@@ -6,7 +6,7 @@ use structopt::StructOpt;
 
 /// A basic example
 #[derive(StructOpt, Debug)]
-#[structopt(name = "basic")]
+#[structopt(name = "zb")]
 struct Opt {
     // A flag, true if used in the command line. Note doc comment will
     // be used for the help message of the flag. The name of the
@@ -44,11 +44,10 @@ struct Opt {
 }
 
 fn main() {
+
     let opt = Opt::from_args();
     println!("{:#?}", opt);
-}
 
-fn main() {
     let gj = clockboard(Point::new(0.0, 0.0), Params::default());
     // See https://github.com/georust/geojson/issues/161 for details
     let gjstring = to_string_pretty(&gj).unwrap();
