@@ -3,30 +3,30 @@ use geojson::{Feature, FeatureCollection, GeoJson, Geometry};
 use std::convert::TryInto;
 use std::default::Default;
 
-// See https://stackoverflow.com/questions/24047686
-#[derive(Debug)]
-pub struct Params {
-    n_circles: usize,
-    num_segments: usize,
-    distances: Vec<f64>,
-    num_vertices_arc: usize,
-    precision: usize,
-}
+// // See https://stackoverflow.com/questions/24047686
+// #[derive(Debug)]
+// pub struct Params {
+//     n_circles: usize,
+//     num_segments: usize,
+//     distances: Vec<f64>,
+//     num_vertices_arc: usize,
+//     precision: usize,
+// }
 
-// https://doc.rust-lang.org/std/default/trait.Default.html
+// // https://doc.rust-lang.org/std/default/trait.Default.html
 
-impl Default for Params {
-    fn default() -> Self {
-        // default: triangular number sequence
-        Params {
-            n_circles: 5,
-            num_segments: 12,
-            distances: vec![1.0, 3.0, 6.0, 10.0, 15.0],
-            num_vertices_arc: 10,
-            precision: 6,
-        }
-    }
-}
+// impl Default for Params {
+//     fn default() -> Self {
+//         // default: triangular number sequence
+//         Params {
+//             n_circles: 5,
+//             num_segments: 12,
+//             distances: vec![1.0, 3.0, 6.0, 10.0, 15.0],
+//             num_vertices_arc: 10,
+//             precision: 6,
+//         }
+//     }
+// }
 
 fn round(poly: &mut Polygon<f64>, precision: usize) {
     let p = 10_usize.pow(precision.try_into().unwrap()) as f64;

@@ -7,7 +7,7 @@ use structopt::StructOpt;
 /// A basic example
 #[derive(StructOpt, Debug)]
 #[structopt(name = "zb")]
-struct Opt {
+struct Params {
     // A flag, true if used in the command line. Note doc comment will
     // be used for the help message of the flag. The name of the
     // argument will be, by default, based on the name of the field.
@@ -44,9 +44,9 @@ struct Opt {
     #[structopt(short, long, default_value = "5")]
     precision: usize,
 
-    /// Output file
-    #[structopt(short, long, parse(from_os_str))]
-    output: PathBuf,
+    // /// Output file
+    // #[structopt(short, long)]
+    // output: PathBuf,
 
 }
 
@@ -54,9 +54,12 @@ fn main() {
 
     let opt = Opt::from_args();
     println!("{:#?}", opt);
+    println!("{:#?}", opt::);
 
     let gj = clockboard(Point::new(0.0, 0.0), Params::default());
     // See https://github.com/georust/geojson/issues/161 for details
     let gjstring = to_string_pretty(&gj).unwrap();
     println!("{}", gjstring);
+    // Write output if output provided
+    // write!(&mut opt::output, "{}", gjstring);
 }
