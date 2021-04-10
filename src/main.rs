@@ -5,7 +5,7 @@ use zonebuilder::{clockboard, Params};
 
 fn main() {
 
-    println!("{:#?}", Params::default());
+    // eprintln!("{:#?}", Params::default());
 
     let gj = clockboard(Point::new(0.0, 0.0), Params::default());
     // See https://github.com/georust/geojson/issues/161 for details

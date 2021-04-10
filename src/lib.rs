@@ -3,7 +3,7 @@ use geojson::{Feature, FeatureCollection, GeoJson, Geometry};
 use std::convert::TryInto;
 use std::default::Default;
 
-use std::path::PathBuf;
+// use std::path::PathBuf;
 use structopt::StructOpt;
 
 /// A basic example
