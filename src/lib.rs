@@ -146,7 +146,7 @@ fn clockpoly(
         arc_outer.push(Point::new(x, y));
     }
     for i in seq_reverse {
-        let angle: f64 = 2.0 * std::f64::consts::PI / (nc as f64) * (i as f64);
+        let angle: f64 = 2.0 * std::f64::consts::PI / (nc as f64) * (i as f64) + o;
         let x = centerpoint.x() + radius_inner * angle.cos();
         let y = centerpoint.y() + radius_inner * angle.sin();
         arc_inner.push(Point::new(x, y));
