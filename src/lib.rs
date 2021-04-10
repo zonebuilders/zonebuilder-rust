@@ -9,7 +9,7 @@ pub struct Params {
     n_circles: usize,
     num_segments: usize,
     distances: Vec<f64>,
-    num_vertices: usize,
+    num_vertices_arc: usize,
     precision: usize,
 }
 
@@ -22,7 +22,7 @@ impl Default for Params {
             n_circles: 5,
             num_segments: 12,
             distances: vec![1.0, 3.0, 6.0, 10.0, 15.0],
-            num_vertices: 120,
+            num_vertices_arc: 10,
             precision: 6,
         }
     }
@@ -42,7 +42,7 @@ pub fn clockboard(
     let mut irad_inner: f64;
     if params.num_segments == 1 {
         for i in params.distances {
-            let zone = makecircle(centerpoint, i, params.num_vertices);
+            let zone = makecircle(centerpoint, i, params.num_vertices_arc * params.num_segments);
             polygons.push(zone);
         }
     } else {
@@ -58,7 +58,7 @@ pub fn clockboard(
                     centerpoint,
                     irad,
                     irad_inner,
-                    params.num_vertices,
+                    params.num_vertices_arc,
                     params.num_segments,
                     j,
                 );
@@ -109,7 +109,7 @@ fn clockpoly(
     centerpoint: Point<f64>,
     radius_outer: f64,
     radius_inner: f64,
-    num_vertices: usize,
+    num_vertices_arc: usize,
     num_segments: usize,
     seg: usize,
 ) -> Polygon<f64> {
@@ -119,19 +119,19 @@ fn clockpoly(
     // Sequence of vertices
     // in R round(seq(from, to, length.out = num_segments))
     // Number of vertices per segment
-    let n = num_vertices / num_segments;
+    let n = num_vertices_arc;
     let f = seg * n;
     let t = 1 + (seg + 1) * n;
     let seq = f..t;
     let seq_reverse = (f..t).rev();
     for i in seq {
-        let angle: f64 = 2.0 * std::f64::consts::PI / (num_vertices as f64) * (i as f64);
+        let angle: f64 = 2.0 * std::f64::consts::PI / (n as f64) * (i as f64);
         let x = centerpoint.x() + radius_outer * angle.cos();
         let y = centerpoint.y() + radius_outer * angle.sin();
         arc_outer.push(Point::new(x, y));
     }
     for i in seq_reverse {
-        let angle: f64 = 2.0 * std::f64::consts::PI / (num_vertices as f64) * (i as f64);
+        let angle: f64 = 2.0 * std::f64::consts::PI / (n as f64) * (i as f64);
         let x = centerpoint.x() + radius_inner * angle.cos();
         let y = centerpoint.y() + radius_inner * angle.sin();
         arc_inner.push(Point::new(x, y));
