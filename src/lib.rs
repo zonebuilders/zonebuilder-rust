@@ -3,79 +3,19 @@ use geojson::{Feature, FeatureCollection, GeoJson, Geometry};
 use std::convert::TryInto;
 use std::default::Default;
 
-// use std::path::PathBuf;
-use structopt::StructOpt;
 
-/// A basic example
-#[derive(StructOpt, Debug)]
-#[structopt(name = "zb")]
+
+// See https://stackoverflow.com/questions/24047686
+#[derive(Debug)]
 pub struct Params {
-    // // A flag, true if used in the command line. Note doc comment will
-    // // be used for the help message of the flag. The name of the
-    // // argument will be, by default, based on the name of the field.
-    // /// Activate debug mode
-    // #[structopt(long)]
-    // debug: bool,
-
-    // // The number of occurrences of the `v/verbose` flag
-    // /// Verbose mode (-v, -vv, -vvv, etc.)
-    // #[structopt(long, parse(from_occurrences))]
-    // verbose: u8,
-
-    /// Set n_circles
-    #[structopt(short = "c", long, default_value = "5")]
     n_circles: usize,
-
-    /// Number of radial segments (12 by default)
-    #[structopt(short = "s", long, default_value = "12")]
     num_segments: usize,
-
-    /// Distances between concentric rings.
-    /// First 5 values of the triangular number sequence (1 to 15)
-    /// by default
-    #[structopt(short, long, default_value = "vec![1.0, 3.0, 6.0, 10.0, 15.0]")]
     distances: Vec<f64>,
-
-    /// Number of vertices per arc
-    #[structopt(short = "v", long, default_value = "5")]
     num_vertices_arc: usize,
-
-    /// Number of decimal places in the resulting output (GeoJSON) files.
-    /// Set to 6 by default. Larger numbers mean more precision but
-    /// larger file sizes.
-    #[structopt(short, long, default_value = "5")]
     precision: usize,
-
-    // /// Output file
-    // #[structopt(short, long)]
-    // output: PathBuf,
-
 }
-
-// // See https://stackoverflow.com/questions/24047686
-// #[derive(Debug)]
-// pub struct Params {
-//     n_circles: usize,
-//     num_segments: usize,
-//     distances: Vec<f64>,
-//     num_vertices_arc: usize,
-//     precision: usize,
-// }
 
 // // https://doc.rust-lang.org/std/default/trait.Default.html
-
-impl Default for Params {
-    fn default() -> Self {
-        // default: triangular number sequence
-        Params {
-            n_circles: 5,
-            num_segments: 12,
-            distances: vec![1.0, 3.0, 6.0, 10.0, 15.0],
-            num_vertices_arc: 10,
-            precision: 6,
-        }
-    }
-}
 
 fn round(poly: &mut Polygon<f64>, precision: usize) {
     let p = 10_usize.pow(precision.try_into().unwrap()) as f64;
