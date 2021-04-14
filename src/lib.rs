@@ -2,6 +2,8 @@ use geo::{map_coords::MapCoordsInplace, LineString, Point, Polygon};
 use geojson::{Feature, FeatureCollection, GeoJson, Geometry};
 use std::convert::TryInto;
 use std::default::Default;
+use std::iter::FromIterator;
+
 
 // use std::path::PathBuf;
 use structopt::StructOpt;
@@ -120,22 +122,10 @@ pub fn clockboard(
         round(polygon, params.precision);
     }
 
-    let features: Vec<Feature> = polygons
-        .iter()
-        .map(|poly| Feature {
-            bbox: None,
-            geometry: Some(Geometry::from(poly)),
-            id: None,
-            properties: None,
-            foreign_members: None,
-        })
-        .collect();
-
-    let fc = FeatureCollection {
-        bbox: None,
-        features,
-        foreign_members: None,
-    };
+    let gc = geo::GeometryCollection::from_iter(polygons);
+    let fc = geojson::FeatureCollection::from(&gc);
+    let gj = GeoJson::from(fc);
+    gj
 
     let gj = GeoJson::from(fc);
     gj
