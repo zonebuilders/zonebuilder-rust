@@ -44,7 +44,61 @@ git checkout circles
     ## Switched to a new branch 'circles'
     ## Branch 'circles' set up to track remote branch 'circles' from 'origin'.
 
-### Run the CLI:
+### Run the CLI
+
+The `zonebuilder` software is shipped as a binary command line interface
+that can by called from Windows, Mac and Linux system shells as follows:
+
+``` bash
+cargo build
+```
+
+    ##     Finished dev [unoptimized + debuginfo] target(s) in 0.02s
+
+You can see instructions on using the tool with the following command:
+
+``` bash
+./target/debug/zonebuilder -h
+```
+
+    ## zb 0.1.0
+    ## Build zones
+    ## 
+    ## USAGE:
+    ##     zonebuilder [OPTIONS]
+    ## 
+    ## FLAGS:
+    ##     -h, --help       Prints help information
+    ##     -V, --version    Prints version information
+    ## 
+    ## OPTIONS:
+    ##     -d, --distances <distances>...
+    ##             Distances between concentric rings. First 5 values of the triangular number sequence by default, entered as
+    ##             -d 1.0,3.0,6.0,10.0,15.0 [default: 1.0,3.0,6.0,10.0,15.0]
+    ##     -c, --n-circles <n-circles>                  Set n_circles [default: 5]
+    ##     -s, --num-segments <num-segments>            Number of radial segments (12 by default) [default: 12]
+    ##     -v, --num-vertices-arc <num-vertices-arc>    Number of vertices per arc [default: 5]
+    ##     -p, --precision <precision>
+    ##             Number of decimal places in the resulting output (GeoJSON) files. Set to 6 by default. Larger numbers mean
+    ##             more precision but larger file sizes [default: 6]
+
+Let’s try making zones with fewer segments:
+
+``` bash
+./target/debug/zonebuilder -s 3 > zones.geojson
+```
+
+The result:
+
+![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` bash
+./target/debug/zonebuilder --precision 0 > zones.geojson
+```
+
+Results in this:
+
+![](README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ``` bash
 cargo run > zones.geojson
@@ -70,15 +124,15 @@ head -n 20 zones.geojson
     ##               0.0
     ##             ],
     ##             [
-    ##               0.998629,
-    ##               0.052335
-    ##             ],
-    ##             [
     ##               0.994521,
     ##               0.104528
     ##             ],
     ##             [
-    ##               0.987688,
+    ##               0.978147,
+    ##               0.207911
+    ##             ],
+    ##             [
+    ##               0.951056,
 
 Then read in the GeoJSON file with another tool, e.g. R (this step runs
 from an R console that has the `sf` library installed):

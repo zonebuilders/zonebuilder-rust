@@ -32,7 +32,50 @@ git checkout circles
 ```
 
 
-### Run the CLI:
+### Run the CLI
+
+The `zonebuilder` software is shipped as a binary command line interface that can by called from Windows, Mac and Linux system shells as follows:
+
+```{r, engine='bash'}
+cargo build
+```
+
+You can see instructions on using the tool with the following command:
+
+```{r, engine='bash'}
+./target/debug/zonebuilder -h
+```
+
+Let's try making zones with fewer segments:
+
+```{r, engine='bash'}
+./target/debug/zonebuilder -s 3 > zones.geojson
+```
+
+
+The result:
+
+```{r, echo=FALSE}
+z = sf::read_sf("zones.geojson")
+plot(z)
+```
+
+
+```{r, engine='bash'}
+./target/debug/zonebuilder --precision 0 > zones.geojson
+```
+
+Results in this:
+
+```{r, echo=FALSE}
+z = sf::read_sf("zones.geojson")
+plot(z)
+```
+
+
+
+
+
 
 ```{r, engine='bash'}
 cargo run > zones.geojson
