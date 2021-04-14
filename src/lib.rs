@@ -20,8 +20,8 @@ pub struct Params {
     num_segments: usize,
 
     /// Distances between concentric rings.
-    /// First 5 values of the triangular number sequence (1 to 15)
-    /// by default
+    /// First 5 values of the triangular number sequence
+    /// by default, entered as -d 1.0,3.0,6.0,10.0,15.0
     #[structopt(short, long, default_value = "1.0,3.0,6.0,10.0,15.0", use_delimiter = true)]
     distances: Vec<f64>,
 
