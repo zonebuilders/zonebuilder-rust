@@ -1,10 +1,9 @@
 use geo::Point;
 use serde_json::to_string_pretty;
-use zonebuilder::{clockboard, Params};
 use structopt::StructOpt;
+use zonebuilder::{clockboard, Params};
 
 fn main() {
-
     // eprintln!("{:#?}", Params::default());
 
     let gj = clockboard(Point::new(0.0, 0.0), Params::from_args());

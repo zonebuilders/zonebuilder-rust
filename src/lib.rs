@@ -1,7 +1,7 @@
 use geo::{map_coords::MapCoordsInplace, LineString, Point, Polygon};
-use geojson::{Feature, FeatureCollection, GeoJson, Geometry};
+use geojson::GeoJson;
 use std::convert::TryInto;
-use std::default::Default;
+use std::{default::Default, iter::FromIterator};
 
 // use std::path::PathBuf;
 use structopt::StructOpt;
@@ -10,7 +10,6 @@ use structopt::StructOpt;
 #[derive(StructOpt, Debug)]
 #[structopt(name = "zb")]
 pub struct Params {
-
     /// Set n_circles
     #[structopt(short = "c", long, default_value = "5")]
     n_circles: usize,
@@ -22,7 +21,12 @@ pub struct Params {
     /// Distances between concentric rings.
     /// First 5 values of the triangular number sequence
     /// by default, entered as -d 1.0,3.0,6.0,10.0,15.0
-    #[structopt(short, long, default_value = "1.0,3.0,6.0,10.0,15.0", use_delimiter = true)]
+    #[structopt(
+        short,
+        long,
+        default_value = "1.0,3.0,6.0,10.0,15.0",
+        use_delimiter = true
+    )]
     distances: Vec<f64>,
 
     /// Number of vertices per arc
@@ -34,11 +38,9 @@ pub struct Params {
     /// larger file sizes.
     #[structopt(short, long, default_value = "6")]
     precision: usize,
-
     // /// Output file
     // #[structopt(short, long)]
     // output: PathBuf,
-
 }
 
 // // See https://stackoverflow.com/questions/24047686
@@ -80,7 +82,11 @@ pub fn clockboard(
     let mut irad_inner: f64;
     if params.num_segments == 1 {
         for i in params.distances {
-            let zone = makecircle(centerpoint, i, params.num_vertices_arc * params.num_segments);
+            let zone = makecircle(
+                centerpoint,
+                i,
+                params.num_vertices_arc * params.num_segments,
+            );
             polygons.push(zone);
         }
     } else {
@@ -110,8 +116,6 @@ pub fn clockboard(
                     );
                     polygons.push(zone);
                 }
-
-
             }
         }
     }
@@ -120,23 +124,8 @@ pub fn clockboard(
         round(polygon, params.precision);
     }
 
-    let features: Vec<Feature> = polygons
-        .iter()
-        .map(|poly| Feature {
-            bbox: None,
-            geometry: Some(Geometry::from(poly)),
-            id: None,
-            properties: None,
-            foreign_members: None,
-        })
-        .collect();
-
-    let fc = FeatureCollection {
-        bbox: None,
-        features,
-        foreign_members: None,
-    };
-
+    let gc = geo::GeometryCollection::from_iter(polygons);
+    let fc = geojson::FeatureCollection::from(&gc);
     let gj = GeoJson::from(fc);
     gj
 }
