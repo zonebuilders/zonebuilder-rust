@@ -168,14 +168,14 @@ fn clockpoly(
     let seq_reverse = (f..t).rev();
     for i in seq {
         let angle: f64 = 2.0 * std::f64::consts::PI / (nc as f64) * (i as f64) + o;
-        let x = centerpoint.x() + radius_outer * angle.cos();
-        let y = centerpoint.y() + radius_outer * angle.sin();
+        let x = centerpoint.x() + radius_outer * angle.sin();
+        let y = centerpoint.y() + radius_outer * angle.cos();
         arc_outer.push(Point::new(x, y));
     }
     for i in seq_reverse {
         let angle: f64 = 2.0 * std::f64::consts::PI / (nc as f64) * (i as f64) + o;
-        let x = centerpoint.x() + radius_inner * angle.cos();
-        let y = centerpoint.y() + radius_inner * angle.sin();
+        let x = centerpoint.x() + radius_inner * angle.sin();
+        let y = centerpoint.y() + radius_inner * angle.cos();
         arc_inner.push(Point::new(x, y));
     }
     let arcs = [arc_outer, arc_inner].concat();
@@ -183,17 +183,3 @@ fn clockpoly(
     polygon
 }
 
-// Todo: get this working and use in clockpoly: refactor
-// fn arc(angle1: f64, angle2: f64, num_vertices: usize, radius: f64, center: Point<f64>) -> Vec<Point<f64>> {
-//     let mut arc = Vec::new();
-//     // Todo: calculate sequence of numbers to iterate on
-//     // let seq = ...
-//     for i in seq {
-//         // let angle = ...
-//         let x = center.x() + radius * angle.cos();
-//         let y = center.y() + radius * angle.sin();
-//         arc.push(Point::new(x, y));
-//     }
-
-//     arc.push(x, y);
-// }
