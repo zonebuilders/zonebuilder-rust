@@ -6,6 +6,6 @@ edition = "2018"
 
 [dependencies]
 geo = { version = "0.17.1", features=["use-serde"] }
-geojson = { git = "https://github.com/georust/geojson", features=["geo-types"] }
+geojson = "0.22.2"
 serde_json = { version = "1.0.0" }
 structopt = "0.3.21"
