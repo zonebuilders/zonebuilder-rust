@@ -190,7 +190,9 @@ mod tests {
     #[test]       
     fn internal() {
         let args: Vec<String> = Vec::new();
-        let gj = clockboard(Point::new(0.0, 0.0), Params::from_iter(args));
+        let da = Params::from_iter(args);
+        // println!("{}", da); Would be good to print and test args
+        let gj = clockboard(Point::new(0.0, 0.0), da);
         if let GeoJson::FeatureCollection(fc) = gj {
             assert_eq!(60, fc.features.len());
         } else {
