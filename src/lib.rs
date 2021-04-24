@@ -192,7 +192,7 @@ mod tests {
         let args: Vec<String> = Vec::new();
         let gj = clockboard(Point::new(0.0, 0.0), Params::from_iter(args));
         if let GeoJson::FeatureCollection(fc) = gj {
-            assert_eq!(61, fc.features.len());
+            assert_eq!(60, fc.features.len());
         } else {
             panic!("not a feature collection");
         }                                                                                              
