@@ -183,3 +183,17 @@ fn clockpoly(
     polygon
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn internal() {
+        let gj = clockboard();
+        // check that the number of features is correct, in R
+        // gj = sf::read_sf("zones.geojson")
+        // nrow(gj)
+        // 60
+        assert_eq!(60, gj.length());
+    }
+}
