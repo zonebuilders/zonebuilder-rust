@@ -187,13 +187,14 @@ fn clockpoly(
 mod tests {
     use super::*;
 
-    #[test]
+    #[test]       
     fn internal() {
-        let gj = clockboard();
-        // check that the number of features is correct, in R
-        // gj = sf::read_sf("zones.geojson")
-        // nrow(gj)
-        // 60
-        assert_eq!(60, gj.length());
+        let args: Vec<String> = Vec::new();
+        let gj = clockboard(Point::new(0.0, 0.0), Params::from_iter(args));
+        if let GeoJson::FeatureCollection(fc) = gj {
+            assert_eq!(61, fc.features.len());
+        } else {
+            panic!("not a feature collection");
+        }                                                                                              
     }
 }
