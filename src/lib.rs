@@ -187,7 +187,7 @@ fn clockpoly(
 mod tests {
     use super::*;
 
-    #[test]       
+    #[test]
     fn internal() {
         let args: Vec<String> = Vec::new();
         let da = Params::from_iter(args);
@@ -197,6 +197,6 @@ mod tests {
             assert_eq!(49, fc.features.len());
         } else {
             panic!("not a feature collection");
-        }                                                                                              
+        }
     }
 }
