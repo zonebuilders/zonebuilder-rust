@@ -157,11 +157,11 @@ fn clockpoly(
     // Sequence of vertices
     // in R round(seq(from, to, length.out = num_segments))
     // Number of vertices per segment
-    let n = num_vertices_arc;
+    let nv = num_vertices_arc;
     // Number of vertices in the circle
     let nc = num_vertices_arc * num_segments;
-    let f = seg * n;
-    let t = 1 + (seg + 1) * n;
+    let f = seg * nv;
+    let t = 1 + (seg + 1) * nv;
     let seq = f..t;
     // Angle offset so first segment is North
     let o = std::f64::consts::PI / (num_segments as f64);
@@ -182,4 +182,3 @@ fn clockpoly(
     let polygon = Polygon::new(LineString::from(arcs), vec![]);
     polygon
 }
-
