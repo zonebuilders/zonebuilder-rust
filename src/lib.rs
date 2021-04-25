@@ -160,12 +160,12 @@ fn clockpoly(
     let nv = num_vertices_arc;
     // Number of vertices in the circle
     let nc = num_vertices_arc * num_segments;
-    let f = seg * nv;
-    let t = 1 + (seg + 1) * nv;
-    let seq = f..t;
+    let fi = seg * nv;
+    let ti = 1 + (seg + 1) * nv;
+    let seq = fi..ti;
     // Angle offset so first segment is North
     let o = std::f64::consts::PI / (num_segments as f64);
-    let seq_reverse = (f..t).rev();
+    let seq_reverse = (fi..ti).rev();
     for i in seq {
         let angle: f64 = 2.0 * std::f64::consts::PI / (nc as f64) * (i as f64) + o;
         let x = centerpoint.x() + radius_outer * angle.sin();
