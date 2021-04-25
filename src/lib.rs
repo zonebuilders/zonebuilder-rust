@@ -182,3 +182,21 @@ fn clockpoly(
     let arcs = [arc_outer, arc_inner].concat();
     Polygon::new(LineString::from(arcs), vec![])
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn internal() {
+        let args: Vec<String> = Vec::new();
+        let params = Params::from_iter(args);
+        eprintln!("{:?}", params); // print parameters
+        let gj = clockboard(Point::new(0.0, 0.0), params);
+        if let GeoJson::FeatureCollection(fc) = gj {
+            assert_eq!(49, fc.features.len());
+        } else {
+            panic!("not a feature collection");
+        }
+    }
+}
