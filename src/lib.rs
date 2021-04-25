@@ -126,8 +126,7 @@ pub fn clockboard(
 
     let gc = geo::GeometryCollection::from_iter(polygons);
     let fc = geojson::FeatureCollection::from(&gc);
-    let gj = GeoJson::from(fc);
-    gj
+    GeoJson::from(fc)
 }
 
 fn makecircle(centerpoint: Point<f64>, radius: f64, num_vertices: usize) -> Polygon<f64> {
@@ -138,8 +137,7 @@ fn makecircle(centerpoint: Point<f64>, radius: f64, num_vertices: usize) -> Poly
         let y = centerpoint.y() + radius * angle.sin();
         circle_points.push(Point::new(x, y));
     }
-    let polygon = Polygon::new(LineString::from(circle_points), vec![]);
-    polygon
+    Polygon::new(LineString::from(circle_points), vec![])
 }
 
 // Make a single clock polygon
@@ -157,15 +155,15 @@ fn clockpoly(
     // Sequence of vertices
     // in R round(seq(from, to, length.out = num_segments))
     // Number of vertices per segment
-    let n = num_vertices_arc;
+    let nv = num_vertices_arc;
     // Number of vertices in the circle
     let nc = num_vertices_arc * num_segments;
-    let f = seg * n;
-    let t = 1 + (seg + 1) * n;
-    let seq = f..t;
+    let fi = seg * nv;
+    let ti = 1 + (seg + 1) * nv;
+    let seq = fi..ti;
     // Angle offset so first segment is North
     let o = std::f64::consts::PI / (num_segments as f64);
-    let seq_reverse = (f..t).rev();
+    let seq_reverse = (fi..ti).rev();
     for i in seq {
         let angle: f64 = 2.0 * std::f64::consts::PI / (nc as f64) * (i as f64) + o;
         let x = centerpoint.x() + radius_outer * angle.sin();
@@ -179,7 +177,5 @@ fn clockpoly(
         arc_inner.push(Point::new(x, y));
     }
     let arcs = [arc_outer, arc_inner].concat();
-    let polygon = Polygon::new(LineString::from(arcs), vec![]);
-    polygon
+    Polygon::new(LineString::from(arcs), vec![])
 }
-
