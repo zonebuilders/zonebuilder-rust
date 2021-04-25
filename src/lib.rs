@@ -99,12 +99,7 @@ pub fn clockboard(
                 irad_inner = params.distances[(i - 1)];
             }
             // For each segment
-            let num_segs = 
-            if i == 0 {
-                1
-            } else {
-                params.num_segments
-            };
+            let num_segs = if i == 0 { 1 } else { params.num_segments };
             for j in 0..num_segs {
                 if i != 0 {
                     let zone = clockpoly(
