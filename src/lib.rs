@@ -90,6 +90,7 @@ pub fn clockboard(
             polygons.push(zone);
         }
     } else {
+        // For each circle radius
         for i in 0..params.distances.len() {
             let irad = params.distances[i];
             if i == 0 {
@@ -97,7 +98,14 @@ pub fn clockboard(
             } else {
                 irad_inner = params.distances[(i - 1)];
             }
-            for j in 0..params.num_segments {
+            // For each segment
+            let num_segs = 
+            if i == 0 {
+                1
+            } else {
+                params.num_segments
+            };
+            for j in 0..num_segs {
                 if i != 0 {
                     let zone = clockpoly(
                         centerpoint,
