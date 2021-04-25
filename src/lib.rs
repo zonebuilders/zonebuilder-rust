@@ -126,8 +126,7 @@ pub fn clockboard(
 
     let gc = geo::GeometryCollection::from_iter(polygons);
     let fc = geojson::FeatureCollection::from(&gc);
-    let gj = GeoJson::from(fc);
-    gj
+    GeoJson::from(fc)
 }
 
 fn makecircle(centerpoint: Point<f64>, radius: f64, num_vertices: usize) -> Polygon<f64> {
