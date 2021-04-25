@@ -137,8 +137,7 @@ fn makecircle(centerpoint: Point<f64>, radius: f64, num_vertices: usize) -> Poly
         let y = centerpoint.y() + radius * angle.sin();
         circle_points.push(Point::new(x, y));
     }
-    let polygon = Polygon::new(LineString::from(circle_points), vec![]);
-    polygon
+    Polygon::new(LineString::from(circle_points), vec![])
 }
 
 // Make a single clock polygon
@@ -178,6 +177,5 @@ fn clockpoly(
         arc_inner.push(Point::new(x, y));
     }
     let arcs = [arc_outer, arc_inner].concat();
-    let polygon = Polygon::new(LineString::from(arcs), vec![]);
-    polygon
+    Polygon::new(LineString::from(arcs), vec![])
 }
