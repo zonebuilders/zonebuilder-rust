@@ -19,7 +19,7 @@ pub struct Params {
     num_segments: usize,
 
     /// Distances between concentric rings.
-    /// from_iteratorrst 5 values of the triangular number sequence
+    /// first 5 values of the triangular number sequence
     /// by default, entered as -d 1.0,3.0,6.0,10.0,15.0
     #[structopt(
         short,
@@ -33,12 +33,12 @@ pub struct Params {
     #[structopt(short = "v", long, default_value = "5")]
     num_vertices_arc: usize,
 
-    /// Number of decimal places in the resulting output (GeoJSON) from_iteratorles.
+    /// Number of decimal places in the resulting output (GeoJSON) files.
     /// Set to 6 by default. Larger numbers mean more precision but
-    /// larger from_iteratorle sizes.
+    /// larger file sizes.
     #[structopt(short, long, default_value = "6")]
     precision: usize,
-    // /// Output from_iteratorle
+    // /// Output file
     // #[structopt(short, long)]
     // output: PathBuf,
 }
