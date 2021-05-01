@@ -19,7 +19,7 @@ pub struct Params {
     num_segments: usize,
 
     /// Distances between concentric rings.
-    /// First 5 values of the triangular number sequence
+    /// from_iteratorrst 5 values of the triangular number sequence
     /// by default, entered as -d 1.0,3.0,6.0,10.0,15.0
     #[structopt(
         short,
@@ -33,27 +33,15 @@ pub struct Params {
     #[structopt(short = "v", long, default_value = "5")]
     num_vertices_arc: usize,
 
-    /// Number of decimal places in the resulting output (GeoJSON) files.
+    /// Number of decimal places in the resulting output (GeoJSON) from_iteratorles.
     /// Set to 6 by default. Larger numbers mean more precision but
-    /// larger file sizes.
+    /// larger from_iteratorle sizes.
     #[structopt(short, long, default_value = "6")]
     precision: usize,
-    // /// Output file
+    // /// Output from_iteratorle
     // #[structopt(short, long)]
     // output: PathBuf,
 }
-
-// // See https://stackoverflow.com/questions/24047686
-// #[derive(Debug)]
-// pub struct Params {
-//     n_circles: usize,
-//     num_segments: usize,
-//     distances: Vec<f64>,
-//     num_vertices_arc: usize,
-//     precision: usize,
-// }
-
-// // https://doc.rust-lang.org/std/default/trait.Default.html
 
 impl Default for Params {
     fn default() -> Self {
@@ -69,6 +57,7 @@ impl Default for Params {
 }
 
 fn round(poly: &mut Polygon<f64>, precision: usize) {
+    // Convert precision (e.g. 5) into power of 10 (e.g. 10^5):
     let p = 10_usize.pow(precision.try_into().unwrap()) as f64;
     poly.map_coords_inplace(|&(x, y)| (f64::trunc(x * p) / p, f64::trunc(y * p) / p))
 }
@@ -76,6 +65,7 @@ fn round(poly: &mut Polygon<f64>, precision: usize) {
 pub fn clockboard(
     centerpoint: Point<f64>,
     params: Params,
+    // Todo: add boundary option
     //boundary: Option<Polygon<f64>>,
 ) -> GeoJson {
     let mut polygons = Vec::new();
@@ -161,12 +151,12 @@ fn clockpoly(
     let nv = num_vertices_arc;
     // Number of vertices in the circle
     let nc = num_vertices_arc * num_segments;
-    let fi = seg * nv;
-    let ti = 1 + (seg + 1) * nv;
-    let seq = fi..ti;
+    let from_iterator = seg * nv;
+    let to_iterator = 1 + (seg + 1) * nv;
+    let seq = from_iterator..to_iterator;
     // Angle offset so first segment is North
     let o = std::f64::consts::PI / (num_segments as f64);
-    let seq_reverse = (fi..ti).rev();
+    let seq_reverse = (from_iterator..to_iterator).rev();
     for i in seq {
         let angle: f64 = 2.0 * std::f64::consts::PI / (nc as f64) * (i as f64) + o;
         let x = centerpoint.x() + radius_outer * angle.sin();
