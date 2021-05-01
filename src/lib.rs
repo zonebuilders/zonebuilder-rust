@@ -2,6 +2,7 @@ use geo::{map_coords::MapCoordsInplace, LineString, Point, Polygon};
 use geojson::GeoJson;
 use std::convert::TryInto;
 use std::{default::Default, iter::FromIterator};
+use geographiclib_rs::{Geodesic, DirectGeodesic};
 
 // use std::path::PathBuf;
 use structopt::StructOpt;
@@ -72,7 +73,7 @@ pub fn clockboard(
     let mut irad_inner: f64;
     if params.num_segments == 1 {
         for i in params.distances {
-            let zone = makecircle(
+            let zone = makecircle_geo(
                 centerpoint,
                 i,
                 params.num_vertices_arc * params.num_segments,
@@ -102,7 +103,7 @@ pub fn clockboard(
                     );
                     polygons.push(zone);
                 } else {
-                    let zone = makecircle(
+                    let zone = makecircle_geo(
                         centerpoint,
                         irad,
                         params.num_vertices_arc * params.num_segments,
@@ -128,6 +129,18 @@ fn makecircle(centerpoint: Point<f64>, radius: f64, num_vertices: usize) -> Poly
         let angle: f64 = 2.0 * std::f64::consts::PI / (num_vertices as f64) * (i as f64);
         let x = centerpoint.x() + radius * angle.cos();
         let y = centerpoint.y() + radius * angle.sin();
+        circle_points.push(Point::new(x, y));
+    }
+    Polygon::new(LineString::from(circle_points), vec![])
+}
+
+// Make circle using geographic (lon/lat) coordinates
+fn makecircle_geo(centerpoint: Point<f64>, radius: f64, num_vertices: usize) -> Polygon<f64> {
+    let mut circle_points = Vec::new();
+    let g = Geodesic::wgs84();
+    for i in 0..num_vertices {
+        let angle: f64 = 360.0 / (num_vertices as f64) * (i as f64);
+        let (x, y, az) = g.direct(centerpoint.x(), centerpoint.x(), angle, radius * 50000.0);
         circle_points.push(Point::new(x, y));
     }
     Polygon::new(LineString::from(circle_points), vec![])
