@@ -7,6 +7,14 @@ use geographiclib_rs::{Geodesic, DirectGeodesic};
 // use std::path::PathBuf;
 use structopt::StructOpt;
 
+fn true_or_false(s: &str) -> Result<bool, &'static str> {
+    match s {
+        "true" => Ok(true),
+        "false" => Ok(false),
+        _ => Err("expected `true` or `false`"),
+    }
+}
+
 /// Build zones
 #[derive(StructOpt, Debug)]
 #[structopt(name = "zb")]
@@ -20,7 +28,7 @@ pub struct Params {
     num_segments: usize,
 
     /// Distances between concentric rings.
-    /// from_iteratorrst 5 values of the triangular number sequence
+    /// first 5 values of the triangular number sequence
     /// by default, entered as -d 1.0,3.0,6.0,10.0,15.0
     #[structopt(
         short,
@@ -34,12 +42,17 @@ pub struct Params {
     #[structopt(short = "v", long, default_value = "5")]
     num_vertices_arc: usize,
 
-    /// Number of decimal places in the resulting output (GeoJSON) from_iteratorles.
+    /// Number of decimal places in the resulting output (GeoJSON).
     /// Set to 6 by default. Larger numbers mean more precision but
-    /// larger from_iteratorle sizes.
+    /// larger file sizes.
     #[structopt(short, long, default_value = "6")]
     precision: usize,
-    // /// Output from_iteratorle
+
+    /// Is the data projected?
+    /// False by default.
+    #[structopt(long, parse(try_from_str), default_value = "false")]
+    projected: bool,
+    // /// Output file
     // #[structopt(short, long)]
     // output: PathBuf,
 }
@@ -53,6 +66,7 @@ impl Default for Params {
             distances: vec![1.0, 3.0, 6.0, 10.0, 15.0],
             num_vertices_arc: 10,
             precision: 6,
+            projected: false,
         }
     }
 }
