@@ -153,17 +153,15 @@ fn clockpoly(
     let nc = num_vertices_arc * num_segments;
     let from_iterator = seg * nv;
     let to_iterator = 1 + (seg + 1) * nv;
-    let seq = from_iterator..to_iterator;
     // Angle offset so first segment is North
     let o = std::f64::consts::PI / (num_segments as f64);
-    let seq_reverse = (from_iterator..to_iterator).rev();
-    for i in seq {
+    for i in from_iterator..to_iterator {
         let angle: f64 = 2.0 * std::f64::consts::PI / (nc as f64) * (i as f64) + o;
         let x = centerpoint.x() + radius_outer * angle.sin();
         let y = centerpoint.y() + radius_outer * angle.cos();
         arc_outer.push(Point::new(x, y));
     }
-    for i in seq_reverse {
+    for i in (from_iterator..to_iterator).rev() {
         let angle: f64 = 2.0 * std::f64::consts::PI / (nc as f64) * (i as f64) + o;
         let x = centerpoint.x() + radius_inner * angle.sin();
         let y = centerpoint.y() + radius_inner * angle.cos();
