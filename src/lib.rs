@@ -42,7 +42,7 @@ pub struct Params {
     #[structopt(short = "v", long, default_value = "5")]
     num_vertices_arc: usize,
 
-    /// Number of decimal places in the resulting output (GeoJSON).
+    /// Number of decimal places in the resulting output (GeoJSON) files.
     /// Set to 6 by default. Larger numbers mean more precision but
     /// larger file sizes.
     #[structopt(short, long, default_value = "6")]
@@ -182,18 +182,16 @@ fn clockpoly(
     let nc = num_vertices_arc * num_segments;
     let from_iterator = seg * nv;
     let to_iterator = 1 + (seg + 1) * nv;
-    let seq = from_iterator..to_iterator;
     // Angle offset so first segment is North
     let o = std::f64::consts::PI / (num_segments as f64);
-    let seq_reverse = (from_iterator..to_iterator).rev();
     if projected {
-        for i in seq {
+        for i in from_iterator..to_iterator {
             let angle: f64 = 2.0 * std::f64::consts::PI / (nc as f64) * (i as f64) + o;
             let x = centerpoint.x() + radius_outer * angle.sin();
             let y = centerpoint.y() + radius_outer * angle.cos();
             arc_outer.push(Point::new(x, y));
         }
-        for i in seq_reverse {
+        for i in (from_iterator..to_iterator).rev() {
             let angle: f64 = 2.0 * std::f64::consts::PI / (nc as f64) * (i as f64) + o;
             let x = centerpoint.x() + radius_inner * angle.sin();
             let y = centerpoint.y() + radius_inner * angle.cos();
@@ -201,12 +199,12 @@ fn clockpoly(
         }
     } else {
         let crs = Geodesic::wgs84();
-        for i in seq {
+        for i in from_iterator..to_iterator {
             let angle: f64 = 360.0 / (nc as f64) * (i as f64) + o;
             let (x, y, az) = crs.direct(centerpoint.x(), centerpoint.x(), angle, radius_outer * 50000.0);
             arc_outer.push(Point::new(x, y));
         }
-        for i in seq_reverse {
+        for i in (from_iterator..to_iterator).rev() {
             let angle: f64 = 360.0 / (nc as f64) * (i as f64) + o;
             let (x, y, az) = crs.direct(centerpoint.x(), centerpoint.x(), angle, radius_inner * 50000.0);
             arc_inner.push(Point::new(x, y));
