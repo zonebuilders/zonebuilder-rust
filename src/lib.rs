@@ -87,12 +87,22 @@ pub fn clockboard(
     let mut irad_inner: f64;
     if params.num_segments == 1 {
         for i in params.distances {
-            let zone = makecircle_geo(
-                centerpoint,
-                i,
-                params.num_vertices_arc * params.num_segments,
-            );
-            polygons.push(zone);
+            if params.projected {
+                let zone = makecircle(
+                    centerpoint,
+                    i,
+                    params.num_vertices_arc * params.num_segments,
+                );
+                polygons.push(zone);
+            } else {
+                let zone = makecircle_geo(
+                    centerpoint,
+                    i,
+                    params.num_vertices_arc * params.num_segments,
+                );
+                polygons.push(zone);
+            }
+
         }
     } else {
         // For each circle radius
@@ -199,6 +209,50 @@ fn clockpoly(
     let arcs = [arc_outer, arc_inner].concat();
     Polygon::new(LineString::from(arcs), vec![])
 }
+
+// Make a single clock polygon
+fn clockpoly_geo(
+    centerpoint: Point<f64>,
+    radius_outer: f64,
+    radius_inner: f64,
+    num_vertices_arc: usize,
+    num_segments: usize,
+    seg: usize,
+) -> Polygon<f64> {
+    let mut arc_outer = Vec::new();
+    let mut arc_inner = Vec::new();
+
+    // Sequence of vertices
+    // in R round(seq(from, to, length.out = num_segments))
+    // Number of vertices per segment
+    let nv = num_vertices_arc;
+    // Number of vertices in the circle
+    let nc = num_vertices_arc * num_segments;
+    let from_iterator = seg * nv;
+    let to_iterator = 1 + (seg + 1) * nv;
+    let seq = from_iterator..to_iterator;
+    // Angle offset so first segment is North
+    let o = std::f64::consts::PI / (num_segments as f64);
+    let seq_reverse = (from_iterator..to_iterator).rev();
+    for i in seq {
+
+        let angle: f64 = 360.0 / (nc as f64) * (i as f64) + o;
+        let (x, y, az) = g.direct(centerpoint.x(), centerpoint.x(), angle, radius_outer * 50000.0);
+
+        arc_outer.push(Point::new(x, y));
+    }
+    for i in seq_reverse {
+
+
+        let angle: f64 = 360.0 / (nc as f64) * (i as f64) + o;
+        let (x, y, az) = g.direct(centerpoint.x(), centerpoint.x(), angle, radius_inner * 50000.0);
+
+        arc_inner.push(Point::new(x, y));
+    }
+    let arcs = [arc_outer, arc_inner].concat();
+    Polygon::new(LineString::from(arcs), vec![])
+}
+
 
 #[cfg(test)]
 mod tests {
