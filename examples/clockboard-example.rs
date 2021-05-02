@@ -1,5 +1,4 @@
 // See https://github.com/zonebuilders/zonebuilder-rust/issues/23
-extern crate zonebuilder;
 use geo::Point;
 use serde_json::to_string_pretty;
 use structopt::StructOpt;
