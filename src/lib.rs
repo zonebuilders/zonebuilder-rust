@@ -115,13 +115,15 @@ pub fn clockboard(
                         params.num_vertices_arc,
                         params.num_segments,
                         j,
+                        params.projected,
                     );
                     polygons.push(zone);
                 } else {
-                    let zone = makecircle_geo(
+                    let zone = makecircle(
                         centerpoint,
                         irad,
                         params.num_vertices_arc * params.num_segments,
+                        params.projected,
                     );
                     polygons.push(zone);
                 }
@@ -139,8 +141,8 @@ pub fn clockboard(
 }
 
 fn makecircle(centerpoint: Point<f64>, radius: f64, num_vertices: usize, projected: bool) -> Polygon<f64> {
+    let mut circle_points = Vec::new();
     if projected {
-        let mut circle_points = Vec::new();
         for i in 0..num_vertices {
             let angle: f64 = 2.0 * std::f64::consts::PI / (num_vertices as f64) * (i as f64);
             let x = centerpoint.x() + radius * angle.cos();
@@ -159,13 +161,6 @@ fn makecircle(centerpoint: Point<f64>, radius: f64, num_vertices: usize, project
     Polygon::new(LineString::from(circle_points), vec![])
 }
 
-// Make circle using geographic (lon/lat) coordinates
-fn makecircle_geo(centerpoint: Point<f64>, radius: f64, num_vertices: usize) -> Polygon<f64> {
-    let mut circle_points = Vec::new();
-
-    Polygon::new(LineString::from(circle_points), vec![])
-}
-
 // Make a single clock polygon
 fn clockpoly(
     centerpoint: Point<f64>,
@@ -174,6 +169,7 @@ fn clockpoly(
     num_vertices_arc: usize,
     num_segments: usize,
     seg: usize,
+    projected: bool,
 ) -> Polygon<f64> {
     let mut arc_outer = Vec::new();
     let mut arc_inner = Vec::new();
@@ -190,18 +186,33 @@ fn clockpoly(
     // Angle offset so first segment is North
     let o = std::f64::consts::PI / (num_segments as f64);
     let seq_reverse = (from_iterator..to_iterator).rev();
-    for i in seq {
-        let angle: f64 = 2.0 * std::f64::consts::PI / (nc as f64) * (i as f64) + o;
-        let x = centerpoint.x() + radius_outer * angle.sin();
-        let y = centerpoint.y() + radius_outer * angle.cos();
-        arc_outer.push(Point::new(x, y));
+    if projected {
+        for i in seq {
+            let angle: f64 = 2.0 * std::f64::consts::PI / (nc as f64) * (i as f64) + o;
+            let x = centerpoint.x() + radius_outer * angle.sin();
+            let y = centerpoint.y() + radius_outer * angle.cos();
+            arc_outer.push(Point::new(x, y));
+        }
+        for i in seq_reverse {
+            let angle: f64 = 2.0 * std::f64::consts::PI / (nc as f64) * (i as f64) + o;
+            let x = centerpoint.x() + radius_inner * angle.sin();
+            let y = centerpoint.y() + radius_inner * angle.cos();
+            arc_inner.push(Point::new(x, y));
+        }
+    } else {
+        let crs = Geodesic::wgs84();
+        for i in seq {
+            let angle: f64 = 360.0 / (nc as f64) * (i as f64) + o;
+            let (x, y, az) = crs.direct(centerpoint.x(), centerpoint.x(), angle, radius_outer * 50000.0);
+            arc_outer.push(Point::new(x, y));
+        }
+        for i in seq_reverse {
+            let angle: f64 = 360.0 / (nc as f64) * (i as f64) + o;
+            let (x, y, az) = crs.direct(centerpoint.x(), centerpoint.x(), angle, radius_inner * 50000.0);
+            arc_inner.push(Point::new(x, y));
+        }
     }
-    for i in seq_reverse {
-        let angle: f64 = 2.0 * std::f64::consts::PI / (nc as f64) * (i as f64) + o;
-        let x = centerpoint.x() + radius_inner * angle.sin();
-        let y = centerpoint.y() + radius_inner * angle.cos();
-        arc_inner.push(Point::new(x, y));
-    }
+
     let arcs = [arc_outer, arc_inner].concat();
     Polygon::new(LineString::from(arcs), vec![])
 }
