@@ -1,8 +1,8 @@
 use geo::{map_coords::MapCoordsInplace, LineString, Point, Polygon};
+use geographiclib_rs::{DirectGeodesic, Geodesic};
 use geojson::GeoJson;
 use std::convert::TryInto;
 use std::{default::Default, iter::FromIterator};
-use geographiclib_rs::{Geodesic, DirectGeodesic};
 
 // use std::path::PathBuf;
 use structopt::StructOpt;
@@ -132,7 +132,12 @@ pub fn clockboard(
     GeoJson::from(fc)
 }
 
-fn makecircle(centerpoint: Point<f64>, radius: f64, num_vertices: usize, projected: bool) -> Polygon<f64> {
+fn makecircle(
+    centerpoint: Point<f64>,
+    radius: f64,
+    num_vertices: usize,
+    projected: bool,
+) -> Polygon<f64> {
     let mut circle_points = Vec::new();
     if projected {
         for i in 0..num_vertices {
@@ -193,12 +198,22 @@ fn clockpoly(
         let crs = Geodesic::wgs84();
         for i in from_iterator..to_iterator {
             let angle: f64 = 360.0 / (nc as f64) * (i as f64) + o;
-            let (x, y) = crs.direct(centerpoint.x(), centerpoint.x(), angle, radius_outer * 50000.0);
+            let (x, y) = crs.direct(
+                centerpoint.x(),
+                centerpoint.x(),
+                angle,
+                radius_outer * 50000.0,
+            );
             arc_outer.push(Point::new(x, y));
         }
         for i in (from_iterator..to_iterator).rev() {
             let angle: f64 = 360.0 / (nc as f64) * (i as f64) + o;
-            let (x, y) = crs.direct(centerpoint.x(), centerpoint.x(), angle, radius_inner * 50000.0);
+            let (x, y) = crs.direct(
+                centerpoint.x(),
+                centerpoint.x(),
+                angle,
+                radius_inner * 50000.0,
+            );
             arc_inner.push(Point::new(x, y));
         }
     }
