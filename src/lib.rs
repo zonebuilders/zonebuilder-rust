@@ -7,14 +7,6 @@ use geographiclib_rs::{Geodesic, DirectGeodesic};
 // use std::path::PathBuf;
 use structopt::StructOpt;
 
-fn true_or_false(s: &str) -> Result<bool, &'static str> {
-    match s {
-        "true" => Ok(true),
-        "false" => Ok(false),
-        _ => Err("expected `true` or `false`"),
-    }
-}
-
 /// Build zones
 #[derive(StructOpt, Debug)]
 #[structopt(name = "zb")]
@@ -50,7 +42,7 @@ pub struct Params {
 
     /// Is the data projected?
     /// False by default.
-    #[structopt(long, parse(try_from_str), default_value = "false")]
+    #[structopt(long)]
     projected: bool,
     // /// Output file
     // #[structopt(short, long)]
@@ -154,7 +146,7 @@ fn makecircle(centerpoint: Point<f64>, radius: f64, num_vertices: usize, project
         let crs = Geodesic::wgs84();
         for i in 0..num_vertices {
             let angle: f64 = 360.0 / (num_vertices as f64) * (i as f64);
-            let (x, y, az) = crs.direct(centerpoint.x(), centerpoint.x(), angle, radius * 50000.0);
+            let (x, y) = crs.direct(centerpoint.x(), centerpoint.x(), angle, radius * 50000.0);
             circle_points.push(Point::new(x, y));
         }
     }
@@ -201,12 +193,12 @@ fn clockpoly(
         let crs = Geodesic::wgs84();
         for i in from_iterator..to_iterator {
             let angle: f64 = 360.0 / (nc as f64) * (i as f64) + o;
-            let (x, y, az) = crs.direct(centerpoint.x(), centerpoint.x(), angle, radius_outer * 50000.0);
+            let (x, y) = crs.direct(centerpoint.x(), centerpoint.x(), angle, radius_outer * 50000.0);
             arc_outer.push(Point::new(x, y));
         }
         for i in (from_iterator..to_iterator).rev() {
             let angle: f64 = 360.0 / (nc as f64) * (i as f64) + o;
-            let (x, y, az) = crs.direct(centerpoint.x(), centerpoint.x(), angle, radius_inner * 50000.0);
+            let (x, y) = crs.direct(centerpoint.x(), centerpoint.x(), angle, radius_inner * 50000.0);
             arc_inner.push(Point::new(x, y));
         }
     }
