@@ -151,7 +151,7 @@ fn makecircle(
         let crs = Geodesic::wgs84();
         for i in 0..num_vertices {
             let angle: f64 = 360.0 / (num_vertices as f64) * (i as f64);
-            let (x, y) = crs.direct(centerpoint.x(), centerpoint.x(), angle, radius * 50000.0);
+            let (x, y) = crs.direct(centerpoint.x(), centerpoint.x(), angle, radius * 1000.0);
             circle_points.push(Point::new(x, y));
         }
     }
@@ -202,7 +202,7 @@ fn clockpoly(
                 centerpoint.x(),
                 centerpoint.x(),
                 angle,
-                radius_outer * 50000.0,
+                radius_outer * 1000.0,
             );
             arc_outer.push(Point::new(x, y));
         }
@@ -212,7 +212,7 @@ fn clockpoly(
                 centerpoint.x(),
                 centerpoint.x(),
                 angle,
-                radius_inner * 50000.0,
+                radius_inner * 1000.0,
             );
             arc_inner.push(Point::new(x, y));
         }
