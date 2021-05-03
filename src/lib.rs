@@ -87,22 +87,13 @@ pub fn clockboard(
     let mut irad_inner: f64;
     if params.num_segments == 1 {
         for i in params.distances {
-            if params.projected {
-                let zone = makecircle(
-                    centerpoint,
-                    i,
-                    params.num_vertices_arc * params.num_segments,
-                );
-                polygons.push(zone);
-            } else {
-                let zone = makecircle_geo(
-                    centerpoint,
-                    i,
-                    params.num_vertices_arc * params.num_segments,
-                );
-                polygons.push(zone);
-            }
-
+            let zone = makecircle(
+                centerpoint,
+                i,
+                params.num_vertices_arc * params.num_segments,
+                params.projected,
+            );
+            polygons.push(zone);
         }
     } else {
         // For each circle radius
@@ -147,13 +138,23 @@ pub fn clockboard(
     GeoJson::from(fc)
 }
 
-fn makecircle(centerpoint: Point<f64>, radius: f64, num_vertices: usize) -> Polygon<f64> {
-    let mut circle_points = Vec::new();
-    for i in 0..num_vertices {
-        let angle: f64 = 2.0 * std::f64::consts::PI / (num_vertices as f64) * (i as f64);
-        let x = centerpoint.x() + radius * angle.cos();
-        let y = centerpoint.y() + radius * angle.sin();
-        circle_points.push(Point::new(x, y));
+fn makecircle(centerpoint: Point<f64>, radius: f64, num_vertices: usize, projected: bool) -> Polygon<f64> {
+    if projected {
+        let mut circle_points = Vec::new();
+        for i in 0..num_vertices {
+            let angle: f64 = 2.0 * std::f64::consts::PI / (num_vertices as f64) * (i as f64);
+            let x = centerpoint.x() + radius * angle.cos();
+            let y = centerpoint.y() + radius * angle.sin();
+            circle_points.push(Point::new(x, y));
+        }
+    } else {
+        let mut circle_points = Vec::new();
+        let crs = Geodesic::wgs84();
+        for i in 0..num_vertices {
+            let angle: f64 = 360.0 / (num_vertices as f64) * (i as f64);
+            let (x, y, az) = crs.direct(centerpoint.x(), centerpoint.x(), angle, radius * 50000.0);
+            circle_points.push(Point::new(x, y));
+        }
     }
     Polygon::new(LineString::from(circle_points), vec![])
 }
@@ -161,12 +162,7 @@ fn makecircle(centerpoint: Point<f64>, radius: f64, num_vertices: usize) -> Poly
 // Make circle using geographic (lon/lat) coordinates
 fn makecircle_geo(centerpoint: Point<f64>, radius: f64, num_vertices: usize) -> Polygon<f64> {
     let mut circle_points = Vec::new();
-    let g = Geodesic::wgs84();
-    for i in 0..num_vertices {
-        let angle: f64 = 360.0 / (num_vertices as f64) * (i as f64);
-        let (x, y, az) = g.direct(centerpoint.x(), centerpoint.x(), angle, radius * 50000.0);
-        circle_points.push(Point::new(x, y));
-    }
+
     Polygon::new(LineString::from(circle_points), vec![])
 }
 
