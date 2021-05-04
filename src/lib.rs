@@ -150,7 +150,7 @@ fn makecircle(
         let crs = Geodesic::wgs84();
         for i in 0..num_vertices {
             let angle: f64 = 360.0 / (num_vertices as f64) * (i as f64);
-            let (y, x) = crs.direct(centerpoint.y(),centerpoint.x(), angle, radius * 1000.0);
+            let (y, x) = crs.direct(centerpoint.y(), centerpoint.x(), angle, radius * 1000.0);
             circle_points.push(Point::new(x, y));
         }
     }
