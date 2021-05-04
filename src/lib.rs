@@ -199,8 +199,8 @@ fn clockpoly(
         for i in from_iterator..to_iterator {
             let angle: f64 = 360.0 / (nc as f64) * (i as f64) + o;
             let (x, y) = crs.direct(
-                centerpoint.y(),
                 centerpoint.x(),
+                centerpoint.y(),
                 angle,
                 radius_outer * 1000.0,
             );
@@ -209,8 +209,8 @@ fn clockpoly(
         for i in (from_iterator..to_iterator).rev() {
             let angle: f64 = 360.0 / (nc as f64) * (i as f64) + o;
             let (x, y) = crs.direct(
-                centerpoint.y(),
                 centerpoint.x(),
+                centerpoint.y(),
                 angle,
                 radius_inner * 1000.0,
             );
