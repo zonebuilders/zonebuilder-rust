@@ -64,6 +64,32 @@ impl Default for Params {
     }
 }
 
+fn arcpoints(
+    num_circles: usize,
+    idx: usize,
+    o: f64,
+    centerpoint: Point<f64>,
+    radius: f64,
+) -> Point<f64> {
+    let angle: f64 = 2.0 * PI / (num_circles as f64) * (idx as f64) + o;
+    let x = centerpoint.x() + radius * angle.sin();
+    let y = centerpoint.y() + radius * angle.cos();
+    Point::new(x, y)
+}
+
+fn arcpoints_geodesic(
+    crs: &Geodesic,
+    num_circles: usize,
+    idx: usize,
+    o: f64,
+    centerpoint: Point<f64>,
+    radius: f64,
+) -> Point<f64> {
+    let angle: f64 = 360.0 / (num_circles as f64) * (idx as f64) + o;
+    let (y, x) = crs.direct(centerpoint.y(), centerpoint.x(), angle, radius * 1000.0);
+    Point::new(x, y)
+}
+
 fn round(poly: &mut Polygon<f64>, precision: usize) {
     // Convert precision (e.g. 5) into power of 10 (e.g. 10^5):
     let p = 10_usize.pow(precision.try_into().unwrap()) as f64;
@@ -186,52 +212,25 @@ fn clockpoly(
     let arcs: Vec<Point<f64>> = if projected {
         (from_iterator..to_iterator)
             .enumerate()
-            .map(|(idx, _)| {
-                let angle: f64 = 2.0 * std::f64::consts::PI / (nc as f64) * (idx as f64) + o;
-                let x = centerpoint.x() + radius_outer * angle.sin();
-                let y = centerpoint.y() + radius_outer * angle.cos();
-                Point::new(x, y)
-            })
+            .map(|(idx, _)| arcpoints(nc, idx, o, centerpoint, radius_outer))
             .chain(
                 (from_iterator..to_iterator)
                     .rev()
                     .enumerate()
-                    .map(|(idx, _)| {
-                        let angle: f64 =
-                            2.0 * std::f64::consts::PI / (nc as f64) * (idx as f64) + o;
-                        let x = centerpoint.x() + radius_inner * angle.sin();
-                        let y = centerpoint.y() + radius_inner * angle.cos();
-                        Point::new(x, y)
-                    }),
+                    .map(|(idx, _)| arcpoints(nc, idx, o, centerpoint, radius_inner)),
             )
             .collect()
     } else {
         let crs = Geodesic::wgs84();
         (from_iterator..to_iterator)
             .enumerate()
-            .map(|(idx, _)| {
-                let angle: f64 = 360.0 / (nc as f64) * (idx as f64) + o;
-                let (y, x) = crs.direct(
-                    centerpoint.y(),
-                    centerpoint.x(),
-                    angle,
-                    radius_outer * 1000.0,
-                );
-                Point::new(x, y)
-            })
+            .map(|(idx, _)| arcpoints_geodesic(&crs, nc, idx, o, centerpoint, radius_outer))
             .chain(
                 (from_iterator..to_iterator)
                     .rev()
                     .enumerate()
                     .map(|(idx, _)| {
-                        let angle: f64 = 360.0 / (nc as f64) * (idx as f64) + o;
-                        let (y, x) = crs.direct(
-                            centerpoint.y(),
-                            centerpoint.x(),
-                            angle,
-                            radius_inner * 1000.0,
-                        );
-                        Point::new(x, y)
+                        arcpoints_geodesic(&crs, nc, idx, o, centerpoint, radius_inner)
                     }),
             )
             .collect()
