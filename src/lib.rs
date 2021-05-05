@@ -130,8 +130,7 @@ pub fn clockboard(
                 };
                 let num_segs = if idx == 0 { 1 } else { params.num_segments };
                 (0..num_segs)
-                    .enumerate()
-                    .map(|(jdx, _)| {
+                    .map(|jdx| {
                         if idx != 0 {
                             clockpoly(
                                 centerpoint,
@@ -173,8 +172,7 @@ fn makecircle(
 ) -> Polygon<f64> {
     let circle_points: Vec<Point<f64>> = if projected {
         (0..num_vertices)
-            .enumerate()
-            .map(|(idx, _)| {
+            .map(|idx| {
                 let angle: f64 = 2.0 * PI / (num_vertices as f64) * (idx as f64);
                 let x = centerpoint.x() + radius * angle.cos();
                 let y = centerpoint.y() + radius * angle.sin();
@@ -184,8 +182,7 @@ fn makecircle(
     } else {
         let crs = Geodesic::wgs84();
         (0..num_vertices)
-            .enumerate()
-            .map(|(idx, _)| {
+            .map(|idx| {
                 let angle: f64 = 360.0 / (num_vertices as f64) * (idx as f64);
                 let (y, x) = crs.direct(centerpoint.y(), centerpoint.x(), angle, radius * 1000.0);
                 Point::new(x, y)
