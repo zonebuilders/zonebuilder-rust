@@ -81,7 +81,7 @@ fn arcpoints_geodesic(
     crs: &Geodesic,
     num_circles: usize,
     idx: usize,
-    o: f64,
+    angular_offset: f64,
     centerpoint: Point<f64>,
     radius: f64,
 ) -> Point<f64> {
