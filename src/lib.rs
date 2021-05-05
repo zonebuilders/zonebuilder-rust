@@ -102,57 +102,63 @@ pub fn clockboard(
     // Todo: add boundary option
     //boundary: Option<Polygon<f64>>,
 ) -> GeoJson {
-    let mut polygons = Vec::new();
-    let mut irad_inner: f64;
-    if params.num_segments == 1 {
-        for i in params.distances {
-            let zone = makecircle(
-                centerpoint,
-                i,
-                params.num_vertices_arc * params.num_segments,
-                params.projected,
-            );
-            polygons.push(zone);
-        }
+    let polygons: Vec<Polygon<f64>> = if params.num_segments == 1 {
+        params
+            .distances
+            .iter()
+            .map(|distance| {
+                makecircle(
+                    centerpoint,
+                    *distance,
+                    params.num_vertices_arc * params.num_segments,
+                    params.projected,
+                )
+            })
+            .collect()
     } else {
         // For each circle radius
-        for i in 0..params.distances.len() {
-            let irad = params.distances[i];
-            if i == 0 {
-                irad_inner = 0.0;
-            } else {
-                irad_inner = params.distances[(i - 1)];
-            }
-            // For each segment
-            let num_segs = if i == 0 { 1 } else { params.num_segments };
-            for j in 0..num_segs {
-                if i != 0 {
-                    let zone = clockpoly(
-                        centerpoint,
-                        irad,
-                        irad_inner,
-                        params.num_vertices_arc,
-                        params.num_segments,
-                        j,
-                        params.projected,
-                    );
-                    polygons.push(zone);
+        params
+            .distances
+            .iter()
+            .enumerate()
+            .flat_map(|(idx, _)| {
+                let irad = params.distances[idx];
+                let irad_inner = if idx == 0 {
+                    0.0
                 } else {
-                    let zone = makecircle(
-                        centerpoint,
-                        irad,
-                        params.num_vertices_arc * params.num_segments,
-                        params.projected,
-                    );
-                    polygons.push(zone);
-                }
-            }
-        }
-    }
-
-    for polygon in &mut polygons {
-        round(polygon, params.precision);
-    }
+                    params.distances[(idx - 1)]
+                };
+                let num_segs = if idx == 0 { 1 } else { params.num_segments };
+                (0..num_segs)
+                    .enumerate()
+                    .map(|(jdx, _)| {
+                        if idx != 0 {
+                            clockpoly(
+                                centerpoint,
+                                irad,
+                                irad_inner,
+                                params.num_vertices_arc,
+                                params.num_segments,
+                                jdx,
+                                params.projected,
+                            )
+                        } else {
+                            makecircle(
+                                centerpoint,
+                                irad,
+                                params.num_vertices_arc * params.num_segments,
+                                params.projected,
+                            )
+                        }
+                    })
+                    .collect::<Vec<Polygon<f64>>>()
+            })
+            .map(|mut poly| {
+                round(&mut poly, params.precision);
+                poly
+            })
+            .collect()
+    };
 
     let gc = geo::GeometryCollection::from_iter(polygons);
     let fc = geojson::FeatureCollection::from(&gc);
