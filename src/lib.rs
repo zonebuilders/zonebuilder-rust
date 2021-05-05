@@ -2,6 +2,7 @@ use geo::{map_coords::MapCoordsInplace, LineString, Point, Polygon};
 use geographiclib_rs::{DirectGeodesic, Geodesic};
 use geojson::GeoJson;
 use std::convert::TryInto;
+use std::f64::consts::PI;
 use std::{default::Default, iter::FromIterator};
 
 // use std::path::PathBuf;
@@ -138,22 +139,27 @@ fn makecircle(
     num_vertices: usize,
     projected: bool,
 ) -> Polygon<f64> {
-    let mut circle_points = Vec::new();
-    if projected {
-        for i in 0..num_vertices {
-            let angle: f64 = 2.0 * std::f64::consts::PI / (num_vertices as f64) * (i as f64);
-            let x = centerpoint.x() + radius * angle.cos();
-            let y = centerpoint.y() + radius * angle.sin();
-            circle_points.push(Point::new(x, y));
-        }
+    let circle_points: Vec<Point<f64>> = if projected {
+        (0..num_vertices)
+            .enumerate()
+            .map(|(idx, _)| {
+                let angle: f64 = 2.0 * PI / (num_vertices as f64) * (idx as f64);
+                let x = centerpoint.x() + radius * angle.cos();
+                let y = centerpoint.y() + radius * angle.sin();
+                Point::new(x, y)
+            })
+            .collect()
     } else {
         let crs = Geodesic::wgs84();
-        for i in 0..num_vertices {
-            let angle: f64 = 360.0 / (num_vertices as f64) * (i as f64);
-            let (y, x) = crs.direct(centerpoint.y(), centerpoint.x(), angle, radius * 1000.0);
-            circle_points.push(Point::new(x, y));
-        }
-    }
+        (0..num_vertices)
+            .enumerate()
+            .map(|(idx, _)| {
+                let angle: f64 = 360.0 / (num_vertices as f64) * (idx as f64);
+                let (y, x) = crs.direct(centerpoint.y(), centerpoint.x(), angle, radius * 1000.0);
+                Point::new(x, y)
+            })
+            .collect()
+    };
     Polygon::new(LineString::from(circle_points), vec![])
 }
 
@@ -167,9 +173,6 @@ fn clockpoly(
     seg: usize,
     projected: bool,
 ) -> Polygon<f64> {
-    let mut arc_outer = Vec::new();
-    let mut arc_inner = Vec::new();
-
     // Sequence of vertices
     // in R round(seq(from, to, length.out = num_segments))
     // Number of vertices per segment
@@ -180,44 +183,59 @@ fn clockpoly(
     let to_iterator = 1 + (seg + 1) * nv;
     // Angle offset so first segment is North
     let o = std::f64::consts::PI / (num_segments as f64);
-    if projected {
-        for i in from_iterator..to_iterator {
-            let angle: f64 = 2.0 * std::f64::consts::PI / (nc as f64) * (i as f64) + o;
-            let x = centerpoint.x() + radius_outer * angle.sin();
-            let y = centerpoint.y() + radius_outer * angle.cos();
-            arc_outer.push(Point::new(x, y));
-        }
-        for i in (from_iterator..to_iterator).rev() {
-            let angle: f64 = 2.0 * std::f64::consts::PI / (nc as f64) * (i as f64) + o;
-            let x = centerpoint.x() + radius_inner * angle.sin();
-            let y = centerpoint.y() + radius_inner * angle.cos();
-            arc_inner.push(Point::new(x, y));
-        }
+    let arcs: Vec<Point<f64>> = if projected {
+        (from_iterator..to_iterator)
+            .enumerate()
+            .map(|(idx, _)| {
+                let angle: f64 = 2.0 * std::f64::consts::PI / (nc as f64) * (idx as f64) + o;
+                let x = centerpoint.x() + radius_outer * angle.sin();
+                let y = centerpoint.y() + radius_outer * angle.cos();
+                Point::new(x, y)
+            })
+            .chain(
+                (from_iterator..to_iterator)
+                    .rev()
+                    .enumerate()
+                    .map(|(idx, _)| {
+                        let angle: f64 =
+                            2.0 * std::f64::consts::PI / (nc as f64) * (idx as f64) + o;
+                        let x = centerpoint.x() + radius_inner * angle.sin();
+                        let y = centerpoint.y() + radius_inner * angle.cos();
+                        Point::new(x, y)
+                    }),
+            )
+            .collect()
     } else {
         let crs = Geodesic::wgs84();
-        for i in from_iterator..to_iterator {
-            let angle: f64 = 360.0 / (nc as f64) * (i as f64) + o;
-            let (y, x) = crs.direct(
-                centerpoint.y(),
-                centerpoint.x(),
-                angle,
-                radius_outer * 1000.0,
-            );
-            arc_outer.push(Point::new(x, y));
-        }
-        for i in (from_iterator..to_iterator).rev() {
-            let angle: f64 = 360.0 / (nc as f64) * (i as f64) + o;
-            let (y, x) = crs.direct(
-                centerpoint.y(),
-                centerpoint.x(),
-                angle,
-                radius_inner * 1000.0,
-            );
-            arc_inner.push(Point::new(x, y));
-        }
-    }
-
-    let arcs = [arc_outer, arc_inner].concat();
+        (from_iterator..to_iterator)
+            .enumerate()
+            .map(|(idx, _)| {
+                let angle: f64 = 360.0 / (nc as f64) * (idx as f64) + o;
+                let (y, x) = crs.direct(
+                    centerpoint.y(),
+                    centerpoint.x(),
+                    angle,
+                    radius_outer * 1000.0,
+                );
+                Point::new(x, y)
+            })
+            .chain(
+                (from_iterator..to_iterator)
+                    .rev()
+                    .enumerate()
+                    .map(|(idx, _)| {
+                        let angle: f64 = 360.0 / (nc as f64) * (idx as f64) + o;
+                        let (y, x) = crs.direct(
+                            centerpoint.y(),
+                            centerpoint.x(),
+                            angle,
+                            radius_inner * 1000.0,
+                        );
+                        Point::new(x, y)
+                    }),
+            )
+            .collect()
+    };
     Polygon::new(LineString::from(arcs), vec![])
 }
 
