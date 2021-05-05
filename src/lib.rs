@@ -67,11 +67,11 @@ impl Default for Params {
 fn arcpoints(
     num_circles: usize,
     idx: usize,
-    o: f64,
+    angular_offset: f64,
     centerpoint: Point<f64>,
     radius: f64,
 ) -> Point<f64> {
-    let angle: f64 = 2.0 * PI / (num_circles as f64) * (idx as f64) + o;
+    let angle: f64 = 2.0 * PI / (num_circles as f64) * (idx as f64) + angular_offset;
     let x = centerpoint.x() + radius * angle.sin();
     let y = centerpoint.y() + radius * angle.cos();
     Point::new(x, y)
@@ -85,7 +85,7 @@ fn arcpoints_geodesic(
     centerpoint: Point<f64>,
     radius: f64,
 ) -> Point<f64> {
-    let angle: f64 = 360.0 / (num_circles as f64) * (idx as f64) + o;
+    let angle: f64 = 360.0 / (num_circles as f64) * (idx as f64) + angular_offset;
     let (y, x) = crs.direct(centerpoint.y(), centerpoint.x(), angle, radius * 1000.0);
     Point::new(x, y)
 }
@@ -211,20 +211,20 @@ fn clockpoly(
     let from_iterator = seg * nv;
     let to_iterator = 1 + (seg + 1) * nv;
     // Angle offset so first segment is North
-    let o = std::f64::consts::PI / (num_segments as f64);
+    let angular_offset = std::f64::consts::PI / (num_segments as f64);
     let arcs: Vec<Point<f64>> = if projected {
         (from_iterator..to_iterator)
             .map(|idx| arcpoints(nc, idx, o, centerpoint, radius_outer))
             .chain(
                 (from_iterator..to_iterator)
                     .rev()
-                    .map(|idx| arcpoints(nc, idx, o, centerpoint, radius_inner)),
+                    .map(|idx| arcpoints(nc, idx, angular_offset, centerpoint, radius_inner)),
             )
             .collect()
     } else {
         let crs = Geodesic::wgs84();
         (from_iterator..to_iterator)
-            .map(|idx| arcpoints_geodesic(&crs, nc, idx, o, centerpoint, radius_outer))
+            .map(|idx| arcpoints_geodesic(&crs, nc, idx, angular_offset, centerpoint, radius_outer))
             .chain(
                 (from_iterator..to_iterator)
                     .rev()
