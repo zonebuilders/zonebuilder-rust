@@ -214,7 +214,7 @@ fn clockpoly(
     let angular_offset = std::f64::consts::PI / (num_segments as f64);
     let arcs: Vec<Point<f64>> = if projected {
         (from_iterator..to_iterator)
-            .map(|idx| arcpoints(nc, idx, o, centerpoint, radius_outer))
+            .map(|idx| arcpoints(nc, idx, angular_offset, centerpoint, radius_outer))
             .chain(
                 (from_iterator..to_iterator)
                     .rev()
@@ -228,7 +228,7 @@ fn clockpoly(
             .chain(
                 (from_iterator..to_iterator)
                     .rev()
-                    .map(|idx| arcpoints_geodesic(&crs, nc, idx, o, centerpoint, radius_inner)),
+                    .map(|idx| arcpoints_geodesic(&crs, nc, idx, angular_offset, centerpoint, radius_inner)),
             )
             .collect()
     };
