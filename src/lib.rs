@@ -225,11 +225,9 @@ fn clockpoly(
         let crs = Geodesic::wgs84();
         (from_iterator..to_iterator)
             .map(|idx| arcpoints_geodesic(&crs, nc, idx, angular_offset, centerpoint, radius_outer))
-            .chain(
-                (from_iterator..to_iterator)
-                    .rev()
-                    .map(|idx| arcpoints_geodesic(&crs, nc, idx, angular_offset, centerpoint, radius_inner)),
-            )
+            .chain((from_iterator..to_iterator).rev().map(|idx| {
+                arcpoints_geodesic(&crs, nc, idx, angular_offset, centerpoint, radius_inner)
+            }))
             .collect()
     };
     Polygon::new(LineString::from(arcs), vec![])
