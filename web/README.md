@@ -11,7 +11,11 @@ things, and we can hook up automatic deployment to Github pages.
 
 But for now:
 
-1.  Install [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/) if you haven't before.
+1.  Install [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/) if you haven't before, e.g. with
+
+```bash
+ curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh 
+```
 
 2.  Compile the Rust code to WebAssembly. Run this from the root directory in
     this repo: `cd ..; wasm-pack build --target web -- --features wasm`
