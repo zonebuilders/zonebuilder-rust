@@ -6,11 +6,12 @@ output: github_document
 
 A rust crate for building zones.
 
-It is an experimental and in-progress project to implement the functionality in the [`zonebuilder`](https://zonebuilders.github.io/zonebuilder/) R package in the systems programming language Rust.
+It is an in-progress project to implement the functionality in the [`zonebuilder`](https://zonebuilders.github.io/zonebuilder/) R package in the systems programming language Rust.
 
 Why?
 
-- It should eventually enable more people to benefit from free and open source software for creating zoning systems because Rust enables the creation of binaries for Windows, Mac and the free and open source Linux operating system on which the package was originally developed (Rust can also compile to [WASM](https://webassembly.org/) enabling complex applications such as [A/B Street](https://github.com/a-b-street/abstreet) to run in browser --- the thinking being if that can run in browser surely as simple application to build zones can!)
+- It should eventually enable more people to benefit from free and open source software for creating zoning systems because Rust enables the creation of binaries for Windows, Mac and the free and open source Linux operating system on which the package was originally developed
+- To enable deployment of the zonebuilder techniques online, as demonstrated in the [web](web) folder (Rust can also compile to [WASM](https://webassembly.org/) enabling complex applications such as [A/B Street](https://github.com/a-b-street/abstreet) to run in browser --- the thinking being if that can run in browser surely as simple application to build zones can!)
 - Computational efficiency: the process of building zones is not particularly computationally intensive but this Rust crate may eventually be fast and quick to install and use, possibly from higher level languages such as R using Rust interfaces such as [`extendr`](https://github.com/extendr/extendr)
 - For fun and education: as a simple crate it serves as a good way to show how Rust code is organised and how it works
 
@@ -71,11 +72,6 @@ Results in this:
 z = sf::read_sf("zones.geojson")
 plot(z)
 ```
-
-
-
-
-
 
 ```{r, engine='bash'}
 cargo run > zones.geojson
