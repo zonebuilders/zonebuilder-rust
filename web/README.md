@@ -17,8 +17,21 @@ But for now:
  curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh 
 ```
 
-2.  Compile the Rust code to WebAssembly. Run this from the root directory in
-    this repo: `cd ..; wasm-pack build --target web -- --features wasm`
+2.  Compile the Rust code to WebAssembly. Run this from the root directory of the `zonebuilder-rust` project: 
+
+```bash
+wasm-pack build --target web -- --features wasm
+```
+
+After a few seconds compiling, you should see a message saying something like:
+
+```bash
+# [INFO]: :-) Done in 30.20s
+# [INFO]: :-) Your wasm pkg is ready to publish at /home/robin/orgs/zonebuilders/zonebuilder-rust/pkg.
+```
+
+If so, it worked!
+
 
 3.  Back in this directory, run `./serve_locally.py`
 
