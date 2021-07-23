@@ -11,11 +11,34 @@ things, and we can hook up automatic deployment to Github pages.
 
 But for now:
 
-1.  Install [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/) if you haven't before.
+1.  Install [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/) if you haven't before, e.g. with
 
-2.  Compile the Rust code to WebAssembly. Run this from the root directory in
-    this repo: `cd ..; wasm-pack build --target web -- --features wasm`
+```bash
+ curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh 
+```
 
-3.  Back in this directory, run `./serve_locally.py`
+2.  Compile the Rust code to WebAssembly. Run this from the root directory of the `zonebuilder-rust` project: 
 
-4.  Open http://0.0.0.0:8000/ in your browser.
+```bash
+wasm-pack build --target web -- --features wasm
+```
+
+After a few seconds compiling, you should see a message saying something like:
+
+```bash
+# [INFO]: :-) Done in 30.20s
+# [INFO]: :-) Your wasm pkg is ready to publish at /home/robin/orgs/zonebuilders/zonebuilder-rust/pkg.
+```
+
+If so, it worked!
+
+
+3.  Set your working directory to the `web` folder and serve the map as follows:
+
+```bash
+cd web
+./serve_locally.py
+```
+
+4.  Open http://0.0.0.0:8000/ in your browser. You should see web-based graphical user interface for generating zoning systems.
+
