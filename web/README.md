@@ -33,6 +33,12 @@ After a few seconds compiling, you should see a message saying something like:
 If so, it worked!
 
 
-3.  Back in this directory, run `./serve_locally.py`
+3.  Set your working directory to the `web` folder and serve the map as follows:
 
-4.  Open http://0.0.0.0:8000/ in your browser.
+```bash
+cd web
+./serve_locally.py
+```
+
+4.  Open http://0.0.0.0:8000/ in your browser. You should see web-based graphical user interface for generating zoning systems.
+
