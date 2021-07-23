@@ -4,9 +4,16 @@ version = "0.1.0"
 authors = ["Robin Lovelace <rob00x@gmail.com>"]
 edition = "2018"
 
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[features]
+wasm = ["wasm-bindgen"]
+
 [dependencies]
 geo = { version = "0.17.1", features=["use-serde"] }
+geographiclib-rs = "0.2.0"
 geojson = { version = "0.22.2", features=["geo-types"] }
 serde_json = { version = "1.0.0" }
 structopt = "0.3.21"
-geographiclib-rs = "0.2.0"
+wasm-bindgen = { version = "0.2.70", optional = true }
