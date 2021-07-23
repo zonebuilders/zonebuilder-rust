@@ -250,3 +250,18 @@ mod tests {
         }
     }
 }
+
+// This code exposes make_clockboard as a regular Javascript function. It returns a GeoJSON string.
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::prelude::*;
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen]
+pub fn make_clockboard(lat: f64, lon: f64, num_circles: usize, num_segments: usize) -> String {
+    let args: Vec<String> = Vec::new();
+    let mut params = Params::from_iter(args);
+    params.n_circles = num_circles;
+    params.num_segments = num_segments;
+    let gj = clockboard(Point::new(lon, lat), params);
+    serde_json::to_string(&gj).unwrap()
+}
