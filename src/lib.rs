@@ -12,10 +12,6 @@ use structopt::StructOpt;
 #[derive(StructOpt, Debug)]
 #[structopt(name = "zb")]
 pub struct Params {
-    /// Set n_circles
-    #[structopt(short = "c", long, default_value = "5")]
-    n_circles: usize,
-
     /// Number of radial segments (12 by default)
     #[structopt(short = "s", long, default_value = "12")]
     num_segments: usize,
@@ -54,7 +50,6 @@ impl Default for Params {
     fn default() -> Self {
         // default: triangular number sequence
         Params {
-            n_circles: 5,
             num_segments: 12,
             distances: vec![1.0, 3.0, 6.0, 10.0, 15.0],
             num_vertices_arc: 10,
@@ -233,9 +228,24 @@ fn clockpoly(
     Polygon::new(LineString::from(arcs), vec![])
 }
 
+/// Returns the first `n` [triangular numbers](https://en.wikipedia.org/wiki/Triangular_number),
+/// excluding the 0th.
+pub fn triangular_sequence(n: usize) -> Vec<f64> {
+    (1..=n).map(|i| 0.5 * (i as f64) * (i + 1) as f64).collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_triangular_sequence() {
+        assert!(triangular_sequence(0).is_empty());
+        assert_eq!(vec![1.0], triangular_sequence(1));
+        assert_eq!(vec![1.0, 3.0], triangular_sequence(2));
+        assert_eq!(vec![1.0, 3.0, 6.0], triangular_sequence(3));
+        assert_eq!(vec![1.0, 3.0, 6.0, 10.0], triangular_sequence(4));
+    }
 
     #[test]
     fn internal() {
@@ -257,11 +267,17 @@ use wasm_bindgen::prelude::*;
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
-pub fn make_clockboard(lat: f64, lon: f64, num_circles: usize, num_segments: usize) -> String {
+pub fn make_clockboard(lat: f64, lon: f64, distances: Vec<f64>, num_segments: usize) -> String {
     let args: Vec<String> = Vec::new();
     let mut params = Params::from_iter(args);
-    params.n_circles = num_circles;
+    params.distances = distances;
     params.num_segments = num_segments;
     let gj = clockboard(Point::new(lon, lat), params);
     serde_json::to_string(&gj).unwrap()
+}
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen]
+pub fn generate_triangular_sequence(n: usize) -> Vec<f64> {
+    triangular_sequence(n)
 }
