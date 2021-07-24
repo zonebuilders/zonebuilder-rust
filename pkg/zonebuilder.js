@@ -1,6 +1,23 @@
 
 let wasm;
 
+let cachegetFloat64Memory0 = null;
+function getFloat64Memory0() {
+    if (cachegetFloat64Memory0 === null || cachegetFloat64Memory0.buffer !== wasm.memory.buffer) {
+        cachegetFloat64Memory0 = new Float64Array(wasm.memory.buffer);
+    }
+    return cachegetFloat64Memory0;
+}
+
+let WASM_VECTOR_LEN = 0;
+
+function passArrayF64ToWasm0(arg, malloc) {
+    const ptr = malloc(arg.length * 8);
+    getFloat64Memory0().set(arg, ptr / 8);
+    WASM_VECTOR_LEN = arg.length;
+    return ptr;
+}
+
 let cachegetInt32Memory0 = null;
 function getInt32Memory0() {
     if (cachegetInt32Memory0 === null || cachegetInt32Memory0.buffer !== wasm.memory.buffer) {
@@ -27,20 +44,43 @@ function getStringFromWasm0(ptr, len) {
 /**
 * @param {number} lat
 * @param {number} lon
-* @param {number} num_circles
+* @param {Float64Array} distances
 * @param {number} num_segments
 * @returns {string}
 */
-export function make_clockboard(lat, lon, num_circles, num_segments) {
+export function make_clockboard(lat, lon, distances, num_segments) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        wasm.make_clockboard(retptr, lat, lon, num_circles, num_segments);
+        var ptr0 = passArrayF64ToWasm0(distances, wasm.__wbindgen_malloc);
+        var len0 = WASM_VECTOR_LEN;
+        wasm.make_clockboard(retptr, lat, lon, ptr0, len0, num_segments);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
         return getStringFromWasm0(r0, r1);
     } finally {
         wasm.__wbindgen_add_to_stack_pointer(16);
         wasm.__wbindgen_free(r0, r1);
+    }
+}
+
+function getArrayF64FromWasm0(ptr, len) {
+    return getFloat64Memory0().subarray(ptr / 8, ptr / 8 + len);
+}
+/**
+* @param {number} n
+* @returns {Float64Array}
+*/
+export function generate_triangular_sequence(n) {
+    try {
+        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+        wasm.generate_triangular_sequence(retptr, n);
+        var r0 = getInt32Memory0()[retptr / 4 + 0];
+        var r1 = getInt32Memory0()[retptr / 4 + 1];
+        var v0 = getArrayF64FromWasm0(r0, r1).slice();
+        wasm.__wbindgen_free(r0, r1 * 8);
+        return v0;
+    } finally {
+        wasm.__wbindgen_add_to_stack_pointer(16);
     }
 }
 

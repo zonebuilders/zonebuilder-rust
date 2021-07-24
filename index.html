@@ -30,7 +30,7 @@
 	Segments: <input type="range" min="1" max="20" value="23" id="num_segments" oninput="window.regenerate();">
 	<div id="map"></div>
 	<script type="module">
-		import init, { make_clockboard } from "./pkg/zonebuilder.js";
+		import init, { generate_triangular_sequence, make_clockboard } from "./pkg/zonebuilder.js";
 
 		async function setup() {
 			// Initialize the WASM function.
@@ -71,9 +71,9 @@
 				// First clear the old layer
 				clockboard.remove();
 
-				var num_circles = document.getElementById('num_circles').value;
 				var num_segments = document.getElementById('num_segments').value;
-				var rawJson = JSON.parse(make_clockboard(marker.getLatLng().lat, marker.getLatLng().lng, num_circles, num_segments));
+				var distances = generate_triangular_sequence(document.getElementById('num_circles').value);
+				var rawJson = JSON.parse(make_clockboard(marker.getLatLng().lat, marker.getLatLng().lng, distances, num_segments));
 				clockboard = L.geoJSON(rawJson).addTo(map);
 			}
 

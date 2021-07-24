@@ -3,18 +3,25 @@
 /**
 * @param {number} lat
 * @param {number} lon
-* @param {number} num_circles
+* @param {Float64Array} distances
 * @param {number} num_segments
 * @returns {string}
 */
-export function make_clockboard(lat: number, lon: number, num_circles: number, num_segments: number): string;
+export function make_clockboard(lat: number, lon: number, distances: Float64Array, num_segments: number): string;
+/**
+* @param {number} n
+* @returns {Float64Array}
+*/
+export function generate_triangular_sequence(n: number): Float64Array;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
-  readonly make_clockboard: (a: number, b: number, c: number, d: number, e: number) => void;
+  readonly make_clockboard: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
+  readonly generate_triangular_sequence: (a: number, b: number) => void;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
+  readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_free: (a: number, b: number) => void;
 }
 
