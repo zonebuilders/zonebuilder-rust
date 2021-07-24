@@ -1,0 +1,15 @@
+{
+  "name": "zonebuilder",
+  "collaborators": [
+    "Robin Lovelace <rob00x@gmail.com>"
+  ],
+  "version": "0.1.0",
+  "files": [
+    "zonebuilder_bg.wasm",
+    "zonebuilder.js",
+    "zonebuilder.d.ts"
+  ],
+  "module": "zonebuilder.js",
+  "types": "zonebuilder.d.ts",
+  "sideEffects": false
+}
