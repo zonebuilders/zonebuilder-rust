@@ -1,0 +1,37 @@
+name: Deploy web app
+on:
+  push:
+    branches:
+      - main
+jobs:
+  web:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Rust
+        uses: hecrj/setup-rust-action@v1
+        with:
+          rust-version: stable
+          targets: wasm32-unknown-unknown
+
+      - name: Install wasm-pack
+        uses: jetli/wasm-pack-action@v0.3.0
+
+      - name: Build
+        run: wasm-pack build --release --target web -- --features wasm
+
+      - name: Copy files
+        run: |
+                rm -fv pkg/.gitignore
+                mkdir -p serve
+                cp web/index.html serve
+                cp -Rv pkg serve
+
+      - name: Publish HTML
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./serve/
