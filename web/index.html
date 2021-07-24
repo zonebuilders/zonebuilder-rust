@@ -26,61 +26,67 @@
 </head>
 
 <body>
-	Circles: <input type="range" min="1" max="10" value="5" id="num_circles">
-	Segments: <input type="range" min="1" max="20" value="23" id="num_segments">
-	<button type="button" onclick="window.regenerate();">Generate</button>
+	Circles: <input type="range" min="1" max="10" value="5" id="num_circles" oninput="window.regenerate();">
+	Segments: <input type="range" min="1" max="20" value="23" id="num_segments" oninput="window.regenerate();">
 	<div id="map"></div>
 	<script type="module">
 		import init, { make_clockboard } from "./pkg/zonebuilder.js";
 
-		// Initialize the WASM function.
-		// TODO To be safe, we should really wait for it to complete before proceeding.
-		init();
+		async function setup() {
+			// Initialize the WASM function.
+			await init();
 
-		// Create the Leaflet map
-		var map = L.map('map');
-		map.setView([30.27, -97.74], 13);
-		L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
-			maxZoom: 18,
-			attribution: 'OpenStreetMap & MapBox',
-			id: 'mapbox/streets-v11',
-			tileSize: 512,
-			zoomOffset: -1
-		}).addTo(map);
+			// Create the Leaflet map
+			var map = L.map('map');
+			map.setView([30.27, -97.74], 13);
+			L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+				maxZoom: 18,
+				attribution: 'OpenStreetMap & MapBox',
+				id: 'mapbox/streets-v11',
+				tileSize: 512,
+				zoomOffset: -1
+			}).addTo(map);
 
-		// Create a draggable marker representing the clockboard's center.
-		var marker = L.marker([30.2711286, -97.7436995], {
-			draggable: true,
-			autoPan: true
-		});
-		marker.addTo(map);
+			// Create a draggable marker representing the clockboard's center.
+			var marker = L.marker([30.2711286, -97.7436995], {
+				draggable: true,
+				autoPan: true
+			});
+			marker.addTo(map);
+			marker.on('move', regenerate);
 
-		// When you click on the map, re-center the marker there.
-		function recenter(e) {
-			marker.setLatLng(e.latlng);
+			// When you click on the map, re-center the marker there.
+			function recenter(e) {
+				marker.setLatLng(e.latlng);
+			}
+			map.on('click', recenter);
+
+			// Create an empty GeoJSON layer
+			var clockboard = L.geoJSON().addTo(map);
+
+			// When you click the generate button, recalculate and display the clockboard layer.
+			// TODO Make everything event-based -- no regenerate button. As soon as
+			// you move a slider or the marker, redraw the clockboard.
+			function regenerate() {
+				// First clear the old layer
+				clockboard.remove();
+
+				var num_circles = document.getElementById('num_circles').value;
+				var num_segments = document.getElementById('num_segments').value;
+				var rawJson = JSON.parse(make_clockboard(marker.getLatLng().lat, marker.getLatLng().lng, num_circles, num_segments));
+				clockboard = L.geoJSON(rawJson).addTo(map);
+			}
+
+			// To call regenerate() in the onclick handler, we have to make the function visible.
+			// According to https://stackoverflow.com/questions/53630310/use-functions-defined-in-es6-module-directly-in-html,
+			// this is how you do it.
+			window.regenerate = regenerate;
+
+			// Create the initial clockboard.
+			regenerate();
 		}
-		map.on('click', recenter);
 
-		// Create an empty GeoJSON layer
-		var clockboard = L.geoJSON().addTo(map);
-
-		// When you click the generate button, recalculate and display the clockboard layer.
-		// TODO Make everything event-based -- no regenerate button. As soon as
-		// you move a slider or the marker, redraw the clockboard.
-		function regenerate() {
-			// First clear the old layer
-			clockboard.remove();
-
-			var num_circles = document.getElementById('num_circles').value;
-			var num_segments = document.getElementById('num_segments').value;
-			var rawJson = JSON.parse(make_clockboard(marker.getLatLng().lat, marker.getLatLng().lng, num_circles, num_segments));
-			clockboard = L.geoJSON(rawJson).addTo(map);
-		}
-
-		// To call regenerate() in the onclick handler, we have to make the function visible.
-		// According to https://stackoverflow.com/questions/53630310/use-functions-defined-in-es6-module-directly-in-html,
-		// this is how you do it.
-		window.regenerate = regenerate;
+		setup();
 	</script>
 </body>
 
