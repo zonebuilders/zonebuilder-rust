@@ -18,18 +18,20 @@
 		}
 
 		#map {
-			height: 90%;
-			width: 90%;
+			height: 80%;
+			width: 80%;
 			position: absolute;
 		}
 	</style>
 </head>
 
 <body>
+	<h1><a href="https://zonebuilders.github.io/zonebuilder/articles/paper.html" target="_blank">ClockBoard zone
+			generator</a></h1>
 	<span id="num_circles_value"></span> Circles: <input type="range" min="1" max="10" value="5" id="num_circles"
-		oninput="window.regenerate();"><br />
+		oninput="window.regenerate();">
 	<span id="num_segments_value"></span> Segments: <input type="range" min="1" max="20" value="23" id="num_segments"
-		oninput="window.regenerate();"><br />
+		oninput="window.regenerate();">
 	<button type="button" onclick="window.download();">Download GeoJSON</button><br />
 	<div id="map"></div>
 	<script type="module">
