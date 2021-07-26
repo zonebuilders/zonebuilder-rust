@@ -26,9 +26,11 @@
 </head>
 
 <body>
-	Circles: <input type="range" min="1" max="10" value="5" id="num_circles" oninput="window.regenerate();">
-	Segments: <input type="range" min="1" max="20" value="23" id="num_segments" oninput="window.regenerate();">
-	<button type="button" onclick="window.download();">Download GeoJSON</button>
+	<span id="num_circles_value"></span> Circles: <input type="range" min="1" max="10" value="5" id="num_circles"
+		oninput="window.regenerate();"><br />
+	<span id="num_segments_value"></span> Segments: <input type="range" min="1" max="20" value="23" id="num_segments"
+		oninput="window.regenerate();"><br />
+	<button type="button" onclick="window.download();">Download GeoJSON</button><br />
 	<div id="map"></div>
 	<script type="module">
 		import init, { generate_triangular_sequence, make_clockboard } from "./pkg/zonebuilder.js";
@@ -73,9 +75,14 @@
 				clockboard.remove();
 
 				var num_segments = document.getElementById('num_segments').value;
-				var distances = generate_triangular_sequence(document.getElementById('num_circles').value);
+				var num_circles = document.getElementById('num_circles').value;
+				var distances = generate_triangular_sequence(num_circles);
 				var rawJson = JSON.parse(make_clockboard(marker.getLatLng().lat, marker.getLatLng().lng, distances, num_segments));
 				clockboard = L.geoJSON(rawJson).addTo(map);
+
+				// Also update sliders
+				document.getElementById('num_circles_value').innerHTML = num_circles;
+				document.getElementById('num_segments_value').innerHTML = num_segments;
 			}
 
 			function download() {
