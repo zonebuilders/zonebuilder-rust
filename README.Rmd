@@ -15,27 +15,27 @@ Why?
 - Computational efficiency: the process of building zones is not particularly computationally intensive but this Rust crate may eventually be fast and quick to install and use, possibly from higher level languages such as R using Rust interfaces such as [`extendr`](https://github.com/extendr/extendr)
 - For fun and education: as a simple crate it serves as a good way to show how Rust code is organised and how it works
 
+# Installation
+
+## Installation with cargo
+
 To reproduce the example shown here you need to have the rust toolchain installed.
 
-Assuming you do, you can run the code as follows
+Assuming you do, you can install the crate as follows:
 
-### Clone the repo
-
-```{r, echo=FALSE}
-unlink("zonebuilder-rust", recursive = TRUE, force = TRUE)
+```bash
+cargo install --git https://github.com/zonebuilders/zonebuilder-rust --branch main
 ```
 
+## Download and run binaries
 
-```{r, engine='bash'}
-git clone https://github.com/zonebuilders/zonebuilder-rust.git
-cd zonebuilder-rust
-git checkout circles
-```
+Rust can create binaries for all major operating systems.
+Watch this space for how to run zonebuilders using a binary (no compilation or Rust toolchain required).
 
+# Running zonebuilder from the system command line
 
-### Run the CLI
-
-The `zonebuilder` software is shipped as a binary command line interface that can by called from Windows, Mac and Linux system shells as follows:
+The `zonebuilder` binary has a command line interface.
+Assuming you are installing the crate locally, you can build the binary for Windows, Mac and Linux system shells as follows:
 
 ```{r, engine='bash'}
 cargo build
