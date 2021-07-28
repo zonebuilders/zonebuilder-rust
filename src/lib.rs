@@ -5,96 +5,14 @@ use std::convert::TryInto;
 use std::f64::consts::PI;
 use std::{default::Default, iter::FromIterator};
 
-// use std::path::PathBuf;
 use structopt::StructOpt;
 
-/// Build zones
-#[derive(StructOpt, Debug)]
-#[structopt(name = "zb")]
-pub struct Params {
-    /// Number of radial segments (12 by default)
-    #[structopt(short = "s", long, default_value = "12")]
-    num_segments: usize,
-
-    /// Distances between concentric rings.
-    /// first 5 values of the triangular number sequence
-    /// by default, entered as -d 1.0,3.0,6.0,10.0,15.0
-    #[structopt(
-        short,
-        long,
-        default_value = "1.0,3.0,6.0,10.0,15.0",
-        use_delimiter = true
-    )]
-    distances: Vec<f64>,
-
-    /// Number of vertices per arc
-    #[structopt(short = "v", long, default_value = "5")]
-    num_vertices_arc: usize,
-
-    /// Number of decimal places in the resulting output (GeoJSON) files.
-    /// Set to 6 by default. Larger numbers mean more precision but
-    /// larger file sizes.
-    #[structopt(short, long, default_value = "6")]
-    precision: usize,
-
-    /// Is the data projected?
-    /// False by default.
-    #[structopt(long)]
-    projected: bool,
-    // /// Output file
-    // #[structopt(short, long)]
-    // output: PathBuf,
-}
-
-impl Default for Params {
-    fn default() -> Self {
-        // default: triangular number sequence
-        Params {
-            num_segments: 12,
-            distances: vec![1.0, 3.0, 6.0, 10.0, 15.0],
-            num_vertices_arc: 10,
-            precision: 6,
-            projected: false,
-        }
-    }
-}
-
-fn arcpoints(
-    num_circles: usize,
-    idx: usize,
-    angular_offset: f64,
-    centerpoint: Point<f64>,
-    radius: f64,
-) -> Point<f64> {
-    let angle: f64 = 2.0 * PI / (num_circles as f64) * (idx as f64) + angular_offset;
-    let x = centerpoint.x() + radius * angle.sin();
-    let y = centerpoint.y() + radius * angle.cos();
-    Point::new(x, y)
-}
-
-fn arcpoints_geodesic(
-    crs: &Geodesic,
-    num_circles: usize,
-    idx: usize,
-    angular_offset: f64,
-    centerpoint: Point<f64>,
-    radius: f64,
-) -> Point<f64> {
-    let angle: f64 = 360.0 / (num_circles as f64) * (idx as f64) + angular_offset;
-    let (y, x) = crs.direct(centerpoint.y(), centerpoint.x(), angle, radius * 1000.0);
-    Point::new(x, y)
-}
-
-fn round(poly: &mut Polygon<f64>, precision: usize) {
-    // Convert precision (e.g. 5) into power of 10 (e.g. 10^5):
-    let p = 10_usize.pow(precision.try_into().unwrap()) as f64;
-    poly.map_coords_inplace(|&(x, y)| (f64::trunc(x * p) / p, f64::trunc(y * p) / p))
-}
-
+/// Generates a clockboard centered around a point. Returns a GeoJSON object with one feature per
+/// zone.
 pub fn clockboard(
-    centerpoint: Point<f64>,
+    center: Point<f64>,
     params: Params,
-    // Todo: add boundary option
+    // TODO Clip to a boundary
     //boundary: Option<Polygon<f64>>,
 ) -> GeoJson {
     let polygons: Vec<Polygon<f64>> = if params.num_segments == 1 {
@@ -102,8 +20,8 @@ pub fn clockboard(
             .distances
             .iter()
             .map(|distance| {
-                makecircle(
-                    centerpoint,
+                make_circle(
+                    center,
                     *distance,
                     params.num_vertices_arc * params.num_segments,
                     params.projected,
@@ -127,8 +45,8 @@ pub fn clockboard(
                 (0..num_segs)
                     .map(|jdx| {
                         if idx != 0 {
-                            clockpoly(
-                                centerpoint,
+                            clock_polygon(
+                                center,
                                 irad,
                                 irad_inner,
                                 params.num_vertices_arc,
@@ -137,8 +55,8 @@ pub fn clockboard(
                                 params.projected,
                             )
                         } else {
-                            makecircle(
-                                centerpoint,
+                            make_circle(
+                                center,
                                 irad,
                                 params.num_vertices_arc * params.num_segments,
                                 params.projected,
@@ -159,8 +77,90 @@ pub fn clockboard(
     GeoJson::from(fc)
 }
 
-fn makecircle(
-    centerpoint: Point<f64>,
+/// Configures a clockboard diagram
+#[derive(StructOpt, Debug)]
+#[structopt(name = "zb")]
+pub struct Params {
+    /// The number of radial segments. Defaults to 12, like the hours on a clock.
+    #[structopt(short = "s", long, default_value = "12")]
+    num_segments: usize,
+
+    /// The distances between concentric rings. `triangular_sequence` is useful to generate these
+    /// distances.
+    #[structopt(
+        short,
+        long,
+        default_value = "1.0,3.0,6.0,10.0,15.0",
+        use_delimiter = true
+    )]
+    distances: Vec<f64>,
+
+    /// The number of vertices per arc. Higher values approximate a circle more accurately.
+    #[structopt(short = "v", long, default_value = "10")]
+    num_vertices_arc: usize,
+
+    /// The number of decimal places in the resulting output GeoJSON files.
+    /// Set to 6 by default. Larger numbers mean more precision, but larger file sizes.
+    #[structopt(short, long, default_value = "6")]
+    precision: usize,
+
+    /// Is the data projected?
+    #[structopt(long)]
+    projected: bool,
+}
+
+impl Default for Params {
+    fn default() -> Self {
+        Params {
+            num_segments: 12,
+            distances: triangular_sequence(5),
+            num_vertices_arc: 10,
+            precision: 6,
+            projected: false,
+        }
+    }
+}
+
+/// Returns the first `n` [triangular numbers](https://en.wikipedia.org/wiki/Triangular_number),
+/// excluding the 0th.
+pub fn triangular_sequence(n: usize) -> Vec<f64> {
+    (1..=n).map(|i| 0.5 * (i as f64) * (i + 1) as f64).collect()
+}
+
+fn arc_points(
+    num_circles: usize,
+    idx: usize,
+    angular_offset: f64,
+    center: Point<f64>,
+    radius: f64,
+) -> Point<f64> {
+    let angle: f64 = 2.0 * PI / (num_circles as f64) * (idx as f64) + angular_offset;
+    let x = center.x() + radius * angle.sin();
+    let y = center.y() + radius * angle.cos();
+    Point::new(x, y)
+}
+
+fn arc_points_geodesic(
+    crs: &Geodesic,
+    num_circles: usize,
+    idx: usize,
+    angular_offset: f64,
+    center: Point<f64>,
+    radius: f64,
+) -> Point<f64> {
+    let angle: f64 = 360.0 / (num_circles as f64) * (idx as f64) + angular_offset;
+    let (y, x) = crs.direct(center.y(), center.x(), angle, radius * 1000.0);
+    Point::new(x, y)
+}
+
+fn round(poly: &mut Polygon<f64>, precision: usize) {
+    // Convert precision (e.g. 5) into power of 10 (e.g. 10^5):
+    let p = 10_usize.pow(precision.try_into().unwrap()) as f64;
+    poly.map_coords_inplace(|&(x, y)| (f64::trunc(x * p) / p, f64::trunc(y * p) / p))
+}
+
+fn make_circle(
+    center: Point<f64>,
     radius: f64,
     num_vertices: usize,
     projected: bool,
@@ -169,8 +169,8 @@ fn makecircle(
         (0..num_vertices)
             .map(|idx| {
                 let angle: f64 = 2.0 * PI / (num_vertices as f64) * (idx as f64);
-                let x = centerpoint.x() + radius * angle.cos();
-                let y = centerpoint.y() + radius * angle.sin();
+                let x = center.x() + radius * angle.cos();
+                let y = center.y() + radius * angle.sin();
                 Point::new(x, y)
             })
             .collect()
@@ -179,7 +179,7 @@ fn makecircle(
         (0..num_vertices)
             .map(|idx| {
                 let angle: f64 = 360.0 / (num_vertices as f64) * (idx as f64);
-                let (y, x) = crs.direct(centerpoint.y(), centerpoint.x(), angle, radius * 1000.0);
+                let (y, x) = crs.direct(center.y(), center.x(), angle, radius * 1000.0);
                 Point::new(x, y)
             })
             .collect()
@@ -187,9 +187,8 @@ fn makecircle(
     Polygon::new(LineString::from(circle_points), vec![])
 }
 
-// Make a single clock polygon
-fn clockpoly(
-    centerpoint: Point<f64>,
+fn clock_polygon(
+    center: Point<f64>,
     radius_outer: f64,
     radius_inner: f64,
     num_vertices_arc: usize,
@@ -197,41 +196,58 @@ fn clockpoly(
     seg: usize,
     projected: bool,
 ) -> Polygon<f64> {
-    // Sequence of vertices
-    // in R round(seq(from, to, length.out = num_segments))
-    // Number of vertices per segment
-    let nv = num_vertices_arc;
-    // Number of vertices in the circle
-    let nc = num_vertices_arc * num_segments;
-    let from_iterator = seg * nv;
-    let to_iterator = 1 + (seg + 1) * nv;
-    // Angle offset so first segment is North
+    let num_vertices_circle = num_vertices_arc * num_segments;
+    let idx1 = seg * num_vertices_arc;
+    let idx2 = 1 + (seg + 1) * num_vertices_arc;
+    // Angle offset so the first segment is North
     let angular_offset = std::f64::consts::PI / (num_segments as f64);
     let arcs: Vec<Point<f64>> = if projected {
-        (from_iterator..to_iterator)
-            .map(|idx| arcpoints(nc, idx, angular_offset, centerpoint, radius_outer))
-            .chain(
-                (from_iterator..to_iterator)
-                    .rev()
-                    .map(|idx| arcpoints(nc, idx, angular_offset, centerpoint, radius_inner)),
-            )
+        (idx1..idx2)
+            .map(|idx| {
+                arc_points(
+                    num_vertices_circle,
+                    idx,
+                    angular_offset,
+                    center,
+                    radius_outer,
+                )
+            })
+            .chain((idx1..idx2).rev().map(|idx| {
+                arc_points(
+                    num_vertices_circle,
+                    idx,
+                    angular_offset,
+                    center,
+                    radius_inner,
+                )
+            }))
             .collect()
     } else {
         let crs = Geodesic::wgs84();
-        (from_iterator..to_iterator)
-            .map(|idx| arcpoints_geodesic(&crs, nc, idx, angular_offset, centerpoint, radius_outer))
-            .chain((from_iterator..to_iterator).rev().map(|idx| {
-                arcpoints_geodesic(&crs, nc, idx, angular_offset, centerpoint, radius_inner)
+        (idx1..idx2)
+            .map(|idx| {
+                arc_points_geodesic(
+                    &crs,
+                    num_vertices_circle,
+                    idx,
+                    angular_offset,
+                    center,
+                    radius_outer,
+                )
+            })
+            .chain((idx1..idx2).rev().map(|idx| {
+                arc_points_geodesic(
+                    &crs,
+                    num_vertices_circle,
+                    idx,
+                    angular_offset,
+                    center,
+                    radius_inner,
+                )
             }))
             .collect()
     };
     Polygon::new(LineString::from(arcs), vec![])
-}
-
-/// Returns the first `n` [triangular numbers](https://en.wikipedia.org/wiki/Triangular_number),
-/// excluding the 0th.
-pub fn triangular_sequence(n: usize) -> Vec<f64> {
-    (1..=n).map(|i| 0.5 * (i as f64) * (i + 1) as f64).collect()
 }
 
 #[cfg(test)]
@@ -248,10 +264,9 @@ mod tests {
     }
 
     #[test]
-    fn internal() {
+    fn test_number_of_zones() {
         let args: Vec<String> = Vec::new();
         let params = Params::from_iter(args);
-        eprintln!("{:?}", params); // print parameters
         let gj = clockboard(Point::new(0.0, 0.0), params);
         if let GeoJson::FeatureCollection(fc) = gj {
             assert_eq!(49, fc.features.len());
