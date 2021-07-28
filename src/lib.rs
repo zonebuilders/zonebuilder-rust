@@ -64,7 +64,7 @@ pub fn clockboard(
             // Each ring is chopped into num_segments
             for idx in 0..params.num_segments {
                 zones.push((
-                    format!("{}{:02}", ring_name, idx),
+                    format!("{}{:02}", ring_name, idx + 1),
                     clock_polygon(
                         center,
                         outer_radius,
