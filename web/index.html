@@ -18,16 +18,21 @@
 		}
 
 		#map {
-			height: 90%;
-			width: 90%;
+			height: 80%;
+			width: 80%;
 			position: absolute;
 		}
 	</style>
 </head>
 
 <body>
-	Circles: <input type="range" min="1" max="10" value="5" id="num_circles" oninput="window.regenerate();">
-	Segments: <input type="range" min="1" max="20" value="23" id="num_segments" oninput="window.regenerate();">
+	<h1><a href="https://zonebuilders.github.io/zonebuilder/articles/paper.html" target="_blank">ClockBoard zone
+			generator</a></h1>
+	<span id="num_circles_value"></span> Circles: <input type="range" min="1" max="10" value="5" id="num_circles"
+		oninput="window.regenerate();">
+	<span id="num_segments_value"></span> Segments: <input type="range" min="1" max="20" value="23" id="num_segments"
+		oninput="window.regenerate();">
+	<button type="button" onclick="window.download();">Download GeoJSON</button><br />
 	<div id="map"></div>
 	<script type="module">
 		import init, { generate_triangular_sequence, make_clockboard } from "./pkg/zonebuilder.js";
@@ -72,15 +77,31 @@
 				clockboard.remove();
 
 				var num_segments = document.getElementById('num_segments').value;
-				var distances = generate_triangular_sequence(document.getElementById('num_circles').value);
+				var num_circles = document.getElementById('num_circles').value;
+				var distances = generate_triangular_sequence(num_circles);
 				var rawJson = JSON.parse(make_clockboard(marker.getLatLng().lat, marker.getLatLng().lng, distances, num_segments));
 				clockboard = L.geoJSON(rawJson).addTo(map);
+
+				// Also update sliders
+				document.getElementById('num_circles_value').innerHTML = num_circles;
+				document.getElementById('num_segments_value').innerHTML = num_segments;
+			}
+
+			function download() {
+				var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(clockboard.toGeoJSON()));
+				var node = document.createElement('a');
+				node.setAttribute("href", dataStr);
+				node.setAttribute("download", 'clockboard.geojson');
+				document.body.appendChild(node);
+				node.click();
+				node.remove();
 			}
 
 			// To call regenerate() in the onclick handler, we have to make the function visible.
 			// According to https://stackoverflow.com/questions/53630310/use-functions-defined-in-es6-module-directly-in-html,
 			// this is how you do it.
 			window.regenerate = regenerate;
+			window.download = download;
 
 			// Create the initial clockboard.
 			regenerate();
