@@ -30,7 +30,7 @@
 			generator</a></h1>
 	<span id="num_circles_value"></span> Circles: <input type="range" min="1" max="10" value="5" id="num_circles"
 		oninput="window.regenerate();">
-	<span id="num_segments_value"></span> Segments: <input type="range" min="1" max="20" value="23" id="num_segments"
+	<span id="num_segments_value"></span> Segments: <input type="range" min="1" max="12" value="23" id="num_segments"
 		oninput="window.regenerate();">
 	<button type="button" onclick="window.download();">Download GeoJSON</button><br />
 	<div id="map"></div>
@@ -76,8 +76,8 @@
 				// First clear the old layer
 				clockboard.remove();
 
-				var num_segments = document.getElementById('num_segments').value;
-				var num_circles = document.getElementById('num_circles').value;
+				var num_segments = parseInt(document.getElementById('num_segments').value);
+				var num_circles = parseInt(document.getElementById('num_circles').value);
 				var distances = generate_triangular_sequence(num_circles);
 				var rawJson = JSON.parse(make_clockboard(marker.getLatLng().lat, marker.getLatLng().lng, distances, num_segments));
 				clockboard = L.geoJSON(rawJson).addTo(map);
