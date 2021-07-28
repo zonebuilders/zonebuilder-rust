@@ -17,6 +17,12 @@ pub fn clockboard(
 ) -> GeoJson {
     let mut polygons: Vec<Polygon<f64>> = Vec::new();
 
+    let crs = if params.projected {
+        None
+    } else {
+        Some(Geodesic::wgs84())
+    };
+
     if params.num_segments == 1 {
         for distance in params.distances {
             // TODO We need to clip out a hole
@@ -24,7 +30,7 @@ pub fn clockboard(
                 center,
                 distance,
                 params.num_vertices_arc * params.num_segments,
-                params.projected,
+                crs,
             ));
         }
     } else {
@@ -33,7 +39,7 @@ pub fn clockboard(
             center,
             params.distances[0],
             params.num_vertices_arc * params.num_segments,
-            params.projected,
+            crs,
         ));
 
         // Each ring after that is chopped into num_segments
@@ -47,7 +53,7 @@ pub fn clockboard(
                     params.num_vertices_arc,
                     params.num_segments,
                     idx,
-                    params.projected,
+                    crs,
                 ));
             }
         }
@@ -118,24 +124,18 @@ fn arc_point(
     angular_offset: f64,
     center: Point<f64>,
     radius: f64,
+    crs: Option<Geodesic>,
 ) -> Point<f64> {
-    let angle: f64 = 2.0 * PI / (num_circles as f64) * (idx as f64) + angular_offset;
-    let x = center.x() + radius * angle.sin();
-    let y = center.y() + radius * angle.cos();
-    Point::new(x, y)
-}
-
-fn arc_point_geodesic(
-    crs: &Geodesic,
-    num_circles: usize,
-    idx: usize,
-    angular_offset: f64,
-    center: Point<f64>,
-    radius: f64,
-) -> Point<f64> {
-    let angle: f64 = 360.0 / (num_circles as f64) * (idx as f64) + angular_offset;
-    let (y, x) = crs.direct(center.y(), center.x(), angle, radius * 1000.0);
-    Point::new(x, y)
+    if let Some(crs) = crs {
+        let angle: f64 = 360.0 / (num_circles as f64) * (idx as f64) + angular_offset;
+        let (y, x) = crs.direct(center.y(), center.x(), angle, radius * 1000.0);
+        Point::new(x, y)
+    } else {
+        let angle: f64 = 2.0 * PI / (num_circles as f64) * (idx as f64) + angular_offset;
+        let x = center.x() + radius * angle.sin();
+        let y = center.y() + radius * angle.cos();
+        Point::new(x, y)
+    }
 }
 
 fn round(poly: &mut Polygon<f64>, precision: usize) {
@@ -148,23 +148,22 @@ fn make_circle(
     center: Point<f64>,
     radius: f64,
     num_vertices: usize,
-    projected: bool,
+    crs: Option<Geodesic>,
 ) -> Polygon<f64> {
-    let circle_points: Vec<Point<f64>> = if projected {
+    let circle_points: Vec<Point<f64>> = if let Some(crs) = crs {
+        (0..num_vertices)
+            .map(|idx| {
+                let angle: f64 = 360.0 / (num_vertices as f64) * (idx as f64);
+                let (y, x) = crs.direct(center.y(), center.x(), angle, radius * 1000.0);
+                Point::new(x, y)
+            })
+            .collect()
+    } else {
         (0..num_vertices)
             .map(|idx| {
                 let angle: f64 = 2.0 * PI / (num_vertices as f64) * (idx as f64);
                 let x = center.x() + radius * angle.cos();
                 let y = center.y() + radius * angle.sin();
-                Point::new(x, y)
-            })
-            .collect()
-    } else {
-        let crs = Geodesic::wgs84();
-        (0..num_vertices)
-            .map(|idx| {
-                let angle: f64 = 360.0 / (num_vertices as f64) * (idx as f64);
-                let (y, x) = crs.direct(center.y(), center.x(), angle, radius * 1000.0);
                 Point::new(x, y)
             })
             .collect()
@@ -179,7 +178,7 @@ fn clock_polygon(
     num_vertices_arc: usize,
     num_segments: usize,
     seg: usize,
-    projected: bool,
+    crs: Option<Geodesic>,
 ) -> Polygon<f64> {
     assert!(radius_outer > radius_inner);
     let num_vertices_circle = num_vertices_arc * num_segments;
@@ -187,52 +186,28 @@ fn clock_polygon(
     let idx2 = 1 + (seg + 1) * num_vertices_arc;
     // Angle offset so the first segment is North
     let angular_offset = std::f64::consts::PI / (num_segments as f64);
-    let arcs: Vec<Point<f64>> = if projected {
-        (idx1..idx2)
-            .map(|idx| {
-                arc_point(
-                    num_vertices_circle,
-                    idx,
-                    angular_offset,
-                    center,
-                    radius_outer,
-                )
-            })
-            .chain((idx1..idx2).rev().map(|idx| {
-                arc_point(
-                    num_vertices_circle,
-                    idx,
-                    angular_offset,
-                    center,
-                    radius_inner,
-                )
-            }))
-            .collect()
-    } else {
-        let crs = Geodesic::wgs84();
-        (idx1..idx2)
-            .map(|idx| {
-                arc_point_geodesic(
-                    &crs,
-                    num_vertices_circle,
-                    idx,
-                    angular_offset,
-                    center,
-                    radius_outer,
-                )
-            })
-            .chain((idx1..idx2).rev().map(|idx| {
-                arc_point_geodesic(
-                    &crs,
-                    num_vertices_circle,
-                    idx,
-                    angular_offset,
-                    center,
-                    radius_inner,
-                )
-            }))
-            .collect()
-    };
+    let arcs: Vec<Point<f64>> = (idx1..idx2)
+        .map(|idx| {
+            arc_point(
+                num_vertices_circle,
+                idx,
+                angular_offset,
+                center,
+                radius_outer,
+                crs,
+            )
+        })
+        .chain((idx1..idx2).rev().map(|idx| {
+            arc_point(
+                num_vertices_circle,
+                idx,
+                angular_offset,
+                center,
+                radius_inner,
+                crs,
+            )
+        }))
+        .collect();
     Polygon::new(LineString::from(arcs), vec![])
 }
 
