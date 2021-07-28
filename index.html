@@ -69,6 +69,17 @@
 			// Create an empty GeoJSON layer
 			var clockboard = L.geoJSON().addTo(map);
 
+			function labelZones(feature, layer) {
+				var center = L.polygon(feature.geometry.coordinates).getBounds().getCenter();
+
+				layer.bindTooltip(feature.properties.name);
+
+				// TODO This doesn't seem to work...
+				var marker = L.marker(center, { opacity: 0.1 });
+				marker.bindTooltip(feature.properties.name, { permanent: true });
+				marker.addTo(map);
+			}
+
 			// When you click the generate button, recalculate and display the clockboard layer.
 			// TODO Make everything event-based -- no regenerate button. As soon as
 			// you move a slider or the marker, redraw the clockboard.
@@ -80,7 +91,7 @@
 				var num_circles = parseInt(document.getElementById('num_circles').value);
 				var distances = generate_triangular_sequence(num_circles);
 				var rawJson = JSON.parse(make_clockboard(marker.getLatLng().lat, marker.getLatLng().lng, distances, num_segments));
-				clockboard = L.geoJSON(rawJson).addTo(map);
+				clockboard = L.geoJSON(rawJson, { onEachFeature: labelZones }).addTo(map);
 
 				// Also update sliders
 				document.getElementById('num_circles_value').innerHTML = num_circles;
