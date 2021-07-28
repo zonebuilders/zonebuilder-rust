@@ -23,28 +23,37 @@ pub fn clockboard(
         Some(Geodesic::wgs84())
     };
 
-    if params.num_segments == 1 {
-        for distance in params.distances {
-            // TODO We need to clip out a hole
-            polygons.push(make_circle(
-                center,
-                distance,
-                params.num_vertices_arc * params.num_segments,
-                crs,
-            ));
-        }
-    } else {
-        // The innermost zone is just a circle
-        polygons.push(make_circle(
+    // The innermost zone is just a circle
+    polygons.push(Polygon::new(
+        make_circle(
             center,
             params.distances[0],
             params.num_vertices_arc * params.num_segments,
             crs,
-        ));
+        ),
+        Vec::new(),
+    ));
 
-        // Each ring after that is chopped into num_segments
-        for pair in params.distances.windows(2) {
-            let (inner_radius, outer_radius) = (pair[0], pair[1]);
+    for pair in params.distances.windows(2) {
+        let (inner_radius, outer_radius) = (pair[0], pair[1]);
+
+        if params.num_segments == 1 {
+            // Clip out the inner hole
+            let outer_ring = make_circle(
+                center,
+                outer_radius,
+                params.num_vertices_arc * params.num_segments,
+                crs,
+            );
+            let inner_ring = make_circle(
+                center,
+                inner_radius,
+                params.num_vertices_arc * params.num_segments,
+                crs,
+            );
+            polygons.push(Polygon::new(outer_ring, vec![inner_ring]));
+        } else {
+            // Each ring is chopped into num_segments
             for idx in 0..params.num_segments {
                 polygons.push(clock_polygon(
                     center,
@@ -144,12 +153,13 @@ fn round(poly: &mut Polygon<f64>, precision: usize) {
     poly.map_coords_inplace(|&(x, y)| (f64::trunc(x * p) / p, f64::trunc(y * p) / p))
 }
 
+// Returns a circle as a closed LineString.
 fn make_circle(
     center: Point<f64>,
     radius: f64,
     num_vertices: usize,
     crs: Option<Geodesic>,
-) -> Polygon<f64> {
+) -> LineString<f64> {
     let circle_points: Vec<Point<f64>> = if let Some(crs) = crs {
         (0..num_vertices)
             .map(|idx| {
@@ -168,7 +178,7 @@ fn make_circle(
             })
             .collect()
     };
-    Polygon::new(LineString::from(circle_points), vec![])
+    LineString::from(circle_points)
 }
 
 fn clock_polygon(
