@@ -2,9 +2,9 @@ use geo::{map_coords::MapCoordsInplace, LineString, Point, Polygon};
 use geographiclib_rs::{DirectGeodesic, Geodesic};
 use geojson::GeoJson;
 use std::convert::TryInto;
+use std::default::Default;
 use std::f64::consts::PI;
-use std::{default::Default, iter::FromIterator};
-
+use std::iter::FromIterator;
 use structopt::StructOpt;
 
 /// Generates a clockboard centered around a point. Returns a GeoJSON object with one feature per
@@ -15,7 +15,8 @@ pub fn clockboard(
     // TODO Clip to a boundary
     //boundary: Option<Polygon<f64>>,
 ) -> GeoJson {
-    let mut polygons: Vec<Polygon<f64>> = Vec::new();
+    // Each zone has a name and a polygon
+    let mut zones: Vec<(String, Polygon<f64>)> = Vec::new();
 
     let crs = if params.projected {
         None
@@ -24,16 +25,20 @@ pub fn clockboard(
     };
 
     // The innermost zone is just a circle
-    polygons.push(Polygon::new(
-        make_circle(
-            center,
-            params.distances[0],
-            params.num_vertices_arc * params.num_segments,
-            crs,
+    zones.push((
+        "A".to_string(),
+        Polygon::new(
+            make_circle(
+                center,
+                params.distances[0],
+                params.num_vertices_arc * params.num_segments,
+                crs,
+            ),
+            Vec::new(),
         ),
-        Vec::new(),
     ));
 
+    let mut ring_name = 'B';
     for pair in params.distances.windows(2) {
         let (inner_radius, outer_radius) = (pair[0], pair[1]);
 
@@ -51,30 +56,48 @@ pub fn clockboard(
                 params.num_vertices_arc * params.num_segments,
                 crs,
             );
-            polygons.push(Polygon::new(outer_ring, vec![inner_ring]));
+            zones.push((
+                ring_name.to_string(),
+                Polygon::new(outer_ring, vec![inner_ring]),
+            ));
         } else {
             // Each ring is chopped into num_segments
             for idx in 0..params.num_segments {
-                polygons.push(clock_polygon(
-                    center,
-                    outer_radius,
-                    inner_radius,
-                    params.num_vertices_arc,
-                    params.num_segments,
-                    idx,
-                    crs,
+                zones.push((
+                    format!("{}{:02}", ring_name, idx),
+                    clock_polygon(
+                        center,
+                        outer_radius,
+                        inner_radius,
+                        params.num_vertices_arc,
+                        params.num_segments,
+                        idx,
+                        crs,
+                    ),
                 ));
             }
         }
+
+        // B -> C, C -> D, etc in ASCII
+        ring_name = std::char::from_u32(ring_name as u32 + 1).expect("too may rings");
     }
 
-    for poly in &mut polygons {
+    for (_, poly) in &mut zones {
         round(poly, params.precision);
     }
 
-    let gc = geo::GeometryCollection::from_iter(polygons);
-    let fc = geojson::FeatureCollection::from(&gc);
-    GeoJson::from(fc)
+    // Transform the labelled polygons from the geo crate into the geojson crate. Ideally we could
+    // directly map each (name, polygon) into a geojson::Feature, but the conversion APIs are
+    // confusing...
+    let geom_collection =
+        geo::GeometryCollection::from_iter(zones.iter().map(|(_, poly)| poly.clone()));
+    let mut feature_collection = geojson::FeatureCollection::from(&geom_collection);
+    for (feature, (name, _)) in feature_collection.features.iter_mut().zip(zones) {
+        let mut properties = serde_json::Map::new();
+        properties.insert("name".to_string(), name.into());
+        feature.properties = Some(properties);
+    }
+    GeoJson::from(feature_collection)
 }
 
 /// Configures a clockboard diagram
