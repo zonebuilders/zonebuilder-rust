@@ -15,62 +15,47 @@ pub fn clockboard(
     // TODO Clip to a boundary
     //boundary: Option<Polygon<f64>>,
 ) -> GeoJson {
-    let polygons: Vec<Polygon<f64>> = if params.num_segments == 1 {
-        params
-            .distances
-            .iter()
-            .map(|distance| {
-                make_circle(
-                    center,
-                    *distance,
-                    params.num_vertices_arc * params.num_segments,
-                    params.projected,
-                )
-            })
-            .collect()
+    let mut polygons: Vec<Polygon<f64>> = Vec::new();
+
+    if params.num_segments == 1 {
+        for distance in params.distances {
+            // TODO We need to clip out a hole
+            polygons.push(make_circle(
+                center,
+                distance,
+                params.num_vertices_arc * params.num_segments,
+                params.projected,
+            ));
+        }
     } else {
-        // For each circle radius
-        params
-            .distances
-            .iter()
-            .enumerate()
-            .flat_map(|(idx, _)| {
-                let irad = params.distances[idx];
-                let irad_inner = if idx == 0 {
-                    0.0
-                } else {
-                    params.distances[(idx - 1)]
-                };
-                let num_segs = if idx == 0 { 1 } else { params.num_segments };
-                (0..num_segs)
-                    .map(|jdx| {
-                        if idx != 0 {
-                            clock_polygon(
-                                center,
-                                irad,
-                                irad_inner,
-                                params.num_vertices_arc,
-                                params.num_segments,
-                                jdx,
-                                params.projected,
-                            )
-                        } else {
-                            make_circle(
-                                center,
-                                irad,
-                                params.num_vertices_arc * params.num_segments,
-                                params.projected,
-                            )
-                        }
-                    })
-                    .collect::<Vec<Polygon<f64>>>()
-            })
-            .map(|mut poly| {
-                round(&mut poly, params.precision);
-                poly
-            })
-            .collect()
-    };
+        // The innermost zone is just a circle
+        polygons.push(make_circle(
+            center,
+            params.distances[0],
+            params.num_vertices_arc * params.num_segments,
+            params.projected,
+        ));
+
+        // Each ring after that is chopped into num_segments
+        for pair in params.distances.windows(2) {
+            let (inner_radius, outer_radius) = (pair[0], pair[1]);
+            for idx in 0..params.num_segments {
+                polygons.push(clock_polygon(
+                    center,
+                    outer_radius,
+                    inner_radius,
+                    params.num_vertices_arc,
+                    params.num_segments,
+                    idx,
+                    params.projected,
+                ));
+            }
+        }
+    }
+
+    for poly in &mut polygons {
+        round(poly, params.precision);
+    }
 
     let gc = geo::GeometryCollection::from_iter(polygons);
     let fc = geojson::FeatureCollection::from(&gc);
@@ -127,7 +112,7 @@ pub fn triangular_sequence(n: usize) -> Vec<f64> {
     (1..=n).map(|i| 0.5 * (i as f64) * (i + 1) as f64).collect()
 }
 
-fn arc_points(
+fn arc_point(
     num_circles: usize,
     idx: usize,
     angular_offset: f64,
@@ -140,7 +125,7 @@ fn arc_points(
     Point::new(x, y)
 }
 
-fn arc_points_geodesic(
+fn arc_point_geodesic(
     crs: &Geodesic,
     num_circles: usize,
     idx: usize,
@@ -196,6 +181,7 @@ fn clock_polygon(
     seg: usize,
     projected: bool,
 ) -> Polygon<f64> {
+    assert!(radius_outer > radius_inner);
     let num_vertices_circle = num_vertices_arc * num_segments;
     let idx1 = seg * num_vertices_arc;
     let idx2 = 1 + (seg + 1) * num_vertices_arc;
@@ -204,7 +190,7 @@ fn clock_polygon(
     let arcs: Vec<Point<f64>> = if projected {
         (idx1..idx2)
             .map(|idx| {
-                arc_points(
+                arc_point(
                     num_vertices_circle,
                     idx,
                     angular_offset,
@@ -213,7 +199,7 @@ fn clock_polygon(
                 )
             })
             .chain((idx1..idx2).rev().map(|idx| {
-                arc_points(
+                arc_point(
                     num_vertices_circle,
                     idx,
                     angular_offset,
@@ -226,7 +212,7 @@ fn clock_polygon(
         let crs = Geodesic::wgs84();
         (idx1..idx2)
             .map(|idx| {
-                arc_points_geodesic(
+                arc_point_geodesic(
                     &crs,
                     num_vertices_circle,
                     idx,
@@ -236,7 +222,7 @@ fn clock_polygon(
                 )
             })
             .chain((idx1..idx2).rev().map(|idx| {
-                arc_points_geodesic(
+                arc_point_geodesic(
                     &crs,
                     num_vertices_circle,
                     idx,
