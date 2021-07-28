@@ -76,8 +76,8 @@
 				// First clear the old layer
 				clockboard.remove();
 
-				var num_segments = document.getElementById('num_segments').value;
-				var num_circles = document.getElementById('num_circles').value;
+				var num_segments = parseInt(document.getElementById('num_segments').value);
+				var num_circles = parseInt(document.getElementById('num_circles').value);
 				var distances = generate_triangular_sequence(num_circles);
 				var rawJson = JSON.parse(make_clockboard(marker.getLatLng().lat, marker.getLatLng().lng, distances, num_segments));
 				clockboard = L.geoJSON(rawJson).addTo(map);
