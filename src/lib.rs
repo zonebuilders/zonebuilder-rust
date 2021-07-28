@@ -8,7 +8,7 @@ use std::iter::FromIterator;
 use structopt::StructOpt;
 
 /// Generates a clockboard centered around a point. Returns a GeoJSON object with one feature per
-/// zone.
+/// zone, including a `name` property.
 pub fn clockboard(
     center: Point<f64>,
     params: Params,
@@ -153,17 +153,19 @@ pub fn triangular_sequence(n: usize) -> Vec<f64> {
 fn arc_point(
     num_circles: usize,
     idx: usize,
-    angular_offset: f64,
+    num_segments: usize,
     center: Point<f64>,
     radius: f64,
     crs: Option<Geodesic>,
 ) -> Point<f64> {
     if let Some(crs) = crs {
-        let angle: f64 = 360.0 / (num_circles as f64) * (idx as f64) + angular_offset;
+        let offset = 180.0 / (num_segments as f64);
+        let angle: f64 = 360.0 / (num_circles as f64) * (idx as f64) + offset;
         let (y, x) = crs.direct(center.y(), center.x(), angle, radius * 1000.0);
         Point::new(x, y)
     } else {
-        let angle: f64 = 2.0 * PI / (num_circles as f64) * (idx as f64) + angular_offset;
+        let offset = std::f64::consts::PI / (num_segments as f64);
+        let angle: f64 = 2.0 * PI / (num_circles as f64) * (idx as f64) + offset;
         let x = center.x() + radius * angle.sin();
         let y = center.y() + radius * angle.cos();
         Point::new(x, y)
@@ -217,14 +219,12 @@ fn clock_polygon(
     let num_vertices_circle = num_vertices_arc * num_segments;
     let idx1 = seg * num_vertices_arc;
     let idx2 = 1 + (seg + 1) * num_vertices_arc;
-    // Angle offset so the first segment is North
-    let angular_offset = std::f64::consts::PI / (num_segments as f64);
     let arcs: Vec<Point<f64>> = (idx1..idx2)
         .map(|idx| {
             arc_point(
                 num_vertices_circle,
                 idx,
-                angular_offset,
+                num_segments,
                 center,
                 radius_outer,
                 crs,
@@ -234,7 +234,7 @@ fn clock_polygon(
             arc_point(
                 num_vertices_circle,
                 idx,
-                angular_offset,
+                num_segments,
                 center,
                 radius_inner,
                 crs,
