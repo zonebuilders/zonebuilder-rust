@@ -28,33 +28,37 @@ Why?
   - For fun and education: as a simple crate it serves as a good way to
     show how Rust code is organised and how it works
 
+# Installation
+
+## Installation with cargo
+
 To reproduce the example shown here you need to have the rust toolchain
 installed.
 
-Assuming you do, you can run the code as follows
-
-### Clone the repo
+Assuming you do, you can install the crate as follows:
 
 ``` bash
-git clone https://github.com/zonebuilders/zonebuilder-rust.git
-cd zonebuilder-rust
-git checkout circles
+cargo install --git https://github.com/zonebuilders/zonebuilder-rust --branch main
 ```
 
-    ## Cloning into 'zonebuilder-rust'...
-    ## Switched to a new branch 'circles'
-    ## Branch 'circles' set up to track remote branch 'circles' from 'origin'.
+## Download and run binaries
 
-### Run the CLI
+Rust can create binaries for all major operating systems. Watch this
+space for how to run zonebuilders using a binary (no compilation or Rust
+toolchain required).
 
-The `zonebuilder` software is shipped as a binary command line interface
-that can by called from Windows, Mac and Linux system shells as follows:
+# Running zonebuilder from the system command line
+
+The `zonebuilder` binary has a command line interface. Assuming you are
+installing the crate locally, you can build the binary for Windows, Mac
+and Linux system shells as follows:
 
 ``` bash
 cargo build
 ```
 
-    ##     Finished dev [unoptimized + debuginfo] target(s) in 0.01s
+    ##    Compiling zonebuilder v0.1.0 (/home/robin/orgs/zonebuilders/zonebuilder-rust)
+    ##     Finished dev [unoptimized + debuginfo] target(s) in 1.45s
 
 You can see instructions on using the tool with the following command:
 
@@ -77,7 +81,6 @@ You can see instructions on using the tool with the following command:
     ##     -d, --distances <distances>...
     ##             Distances between concentric rings. first 5 values of the triangular number sequence by default, entered as
     ##             -d 1.0,3.0,6.0,10.0,15.0 [default: 1.0,3.0,6.0,10.0,15.0]
-    ##     -c, --n-circles <n-circles>                  Set n_circles [default: 5]
     ##     -s, --num-segments <num-segments>            Number of radial segments (12 by default) [default: 12]
     ##     -v, --num-vertices-arc <num-vertices-arc>    Number of vertices per arc [default: 5]
     ##     -p, --precision <precision>
@@ -92,7 +95,7 @@ Let’s try making zones with fewer segments:
 
 The result:
 
-![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ``` bash
 ./target/debug/zonebuilder --precision 0 > zones.geojson
@@ -100,7 +103,7 @@ The result:
 
 Results in this:
 
-![](README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` bash
 cargo run > zones.geojson
@@ -159,6 +162,11 @@ follows:
 
 ``` r
 zones = zonebuilder::zb_zone(x = "london", n_circles = 5)
+```
+
+    ## Loading required namespace: tmaptools
+
+``` r
 plot(zones$geometry)
 ```
 
