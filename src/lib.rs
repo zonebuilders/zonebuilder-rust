@@ -28,12 +28,7 @@ pub fn clockboard(
     zones.push((
         "A".to_string(),
         Polygon::new(
-            make_circle(
-                center,
-                params.distances[0],
-                params.num_vertices_arc * params.num_segments,
-                crs,
-            ),
+            make_circle(center, params.distances[0], params.num_vertices_arc, crs),
             Vec::new(),
         ),
     ));
@@ -44,18 +39,8 @@ pub fn clockboard(
 
         if params.num_segments == 1 {
             // Clip out the inner hole
-            let outer_ring = make_circle(
-                center,
-                outer_radius,
-                params.num_vertices_arc * params.num_segments,
-                crs,
-            );
-            let inner_ring = make_circle(
-                center,
-                inner_radius,
-                params.num_vertices_arc * params.num_segments,
-                crs,
-            );
+            let outer_ring = make_circle(center, outer_radius, params.num_vertices_arc, crs);
+            let inner_ring = make_circle(center, inner_radius, params.num_vertices_arc, crs);
             zones.push((
                 ring_name.to_string(),
                 Polygon::new(outer_ring, vec![inner_ring]),
@@ -150,26 +135,37 @@ pub fn triangular_sequence(n: usize) -> Vec<f64> {
     (1..=n).map(|i| 0.5 * (i as f64) * (i + 1) as f64).collect()
 }
 
-fn arc_point(
-    num_circles: usize,
-    idx: usize,
-    num_segments: usize,
+/// Generates the points along the boundary of a circle, going between two angles.
+fn arc(
+    theta1_radians: f64,
+    theta2_radians: f64,
     center: Point<f64>,
     radius: f64,
     crs: Option<Geodesic>,
-) -> Point<f64> {
-    if let Some(crs) = crs {
-        let offset = 180.0 / (num_segments as f64);
-        let angle: f64 = 360.0 / (num_circles as f64) * (idx as f64) + offset;
-        let (y, x) = crs.direct(center.y(), center.x(), angle, radius * 1000.0);
-        Point::new(x, y)
-    } else {
-        let offset = std::f64::consts::PI / (num_segments as f64);
-        let angle: f64 = 2.0 * PI / (num_circles as f64) * (idx as f64) + offset;
-        let x = center.x() + radius * angle.sin();
-        let y = center.y() + radius * angle.cos();
-        Point::new(x, y)
+    num_pieces: usize,
+) -> Vec<Point<f64>> {
+    let mut points = Vec::new();
+    // TODO off by one?
+    for idx in 0..=num_pieces {
+        let pct = idx as f64 / num_pieces as f64;
+        let angle_radians = theta1_radians + pct * (theta2_radians - theta1_radians);
+        let (x, y) = if let Some(crs) = crs {
+            let (y, x) = crs.direct(
+                center.y(),
+                center.x(),
+                angle_radians.to_degrees(),
+                radius * 1000.0,
+            );
+            (x, y)
+        } else {
+            (
+                center.x() + radius * angle_radians.sin(),
+                center.y() + radius * angle_radians.cos(),
+            )
+        };
+        points.push(Point::new(x, y));
     }
+    points
 }
 
 fn round(poly: &mut Polygon<f64>, precision: usize) {
@@ -185,25 +181,7 @@ fn make_circle(
     num_vertices: usize,
     crs: Option<Geodesic>,
 ) -> LineString<f64> {
-    let circle_points: Vec<Point<f64>> = if let Some(crs) = crs {
-        (0..num_vertices)
-            .map(|idx| {
-                let angle: f64 = 360.0 / (num_vertices as f64) * (idx as f64);
-                let (y, x) = crs.direct(center.y(), center.x(), angle, radius * 1000.0);
-                Point::new(x, y)
-            })
-            .collect()
-    } else {
-        (0..num_vertices)
-            .map(|idx| {
-                let angle: f64 = 2.0 * PI / (num_vertices as f64) * (idx as f64);
-                let x = center.x() + radius * angle.cos();
-                let y = center.y() + radius * angle.sin();
-                Point::new(x, y)
-            })
-            .collect()
-    };
-    LineString::from(circle_points)
+    LineString::from(arc(0.0, 2.0 * PI, center, radius, crs, num_vertices))
 }
 
 fn clock_polygon(
@@ -216,32 +194,31 @@ fn clock_polygon(
     crs: Option<Geodesic>,
 ) -> Polygon<f64> {
     assert!(radius_outer > radius_inner);
-    let num_vertices_circle = num_vertices_arc * num_segments;
-    let idx1 = seg * num_vertices_arc;
-    let idx2 = 1 + (seg + 1) * num_vertices_arc;
-    let arcs: Vec<Point<f64>> = (idx1..idx2)
-        .map(|idx| {
-            arc_point(
-                num_vertices_circle,
-                idx,
-                num_segments,
-                center,
-                radius_outer,
-                crs,
-            )
-        })
-        .chain((idx1..idx2).rev().map(|idx| {
-            arc_point(
-                num_vertices_circle,
-                idx,
-                num_segments,
-                center,
-                radius_inner,
-                crs,
-            )
-        }))
-        .collect();
-    Polygon::new(LineString::from(arcs), vec![])
+
+    let pct1 = seg as f64 / num_segments as f64;
+    let pct2 = (seg + 1) as f64 / num_segments as f64;
+    let offset = PI / (num_segments as f64);
+    let theta1_radians = 2.0 * PI * pct1 + offset;
+    let theta2_radians = 2.0 * PI * pct2 + offset;
+
+    let mut points = arc(
+        theta1_radians,
+        theta2_radians,
+        center,
+        radius_outer,
+        crs,
+        // TODO divided by num_segments!
+        num_vertices_arc,
+    );
+    points.extend(arc(
+        theta2_radians,
+        theta1_radians,
+        center,
+        radius_inner,
+        crs,
+        num_vertices_arc,
+    ));
+    Polygon::new(LineString::from(points), vec![])
 }
 
 #[cfg(test)]
