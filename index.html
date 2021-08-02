@@ -52,6 +52,14 @@
 				zoomOffset: -1
 			}).addTo(map);
 
+			// Add an optional raster layer for population
+			var worldpop = L.tileLayer('https://ogc.worldpop.org/geoserver/gwc/service/tms/1.0.0/wpGlobal%3Appp_2020@EPSG%3A900913@png/{z}/{x}/{-y}.png', {
+				tms: true,
+				opacity: 0.5,
+				maxNativeZoom: 11
+			});
+			L.control.layers(null, { "<a href='https://www.worldpop.org' target='_blank' title='Only available when zoomed out'>WorldPop 2020</a>": worldpop }, { collapsed: false }).addTo(map);
+
 			// Create a draggable marker representing the clockboard's center.
 			var marker = L.marker([30.2711286, -97.7436995], {
 				draggable: true,
