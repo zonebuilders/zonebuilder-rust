@@ -4,7 +4,6 @@ use geojson::GeoJson;
 use std::convert::TryInto;
 use std::default::Default;
 use std::f64::consts::PI;
-use std::iter::FromIterator;
 use structopt::StructOpt;
 
 /// Generates a clockboard centered around a point. Returns a GeoJSON object with one feature per
@@ -89,8 +88,8 @@ pub fn clockboard(
     // Transform the labelled polygons from the geo crate into the geojson crate. Ideally we could
     // directly map each (name, polygon) into a geojson::Feature, but the conversion APIs are
     // confusing...
-    let geom_collection =
-        geo::GeometryCollection::from_iter(zones.iter().map(|(_, poly)| poly.clone()));
+    let geom_collection: geo::GeometryCollection<f64> =
+        zones.iter().map(|(_, poly)| poly.clone()).collect();
     let mut feature_collection = geojson::FeatureCollection::from(&geom_collection);
     for (feature, (name, _)) in feature_collection.features.iter_mut().zip(zones) {
         let mut properties = serde_json::Map::new();
