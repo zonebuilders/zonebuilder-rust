@@ -92,7 +92,7 @@
 			var clockboard = L.geoJSON().addTo(map);
 
 			function labelZones(feature, layer) {
-				layer.bindTooltip(feature.properties.name);
+				layer.bindTooltip(feature.properties.label);
 			}
 
 			// When you click the generate button, recalculate and display the clockboard layer.

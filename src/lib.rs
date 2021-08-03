@@ -7,14 +7,14 @@ use std::f64::consts::PI;
 use structopt::StructOpt;
 
 /// Generates a clockboard centered around a point. Returns a GeoJSON object with one feature per
-/// zone, including a `name` property.
+/// zone, including a `label` property.
 pub fn clockboard(
     center: Point<f64>,
     params: Params,
     // TODO Clip to a boundary
     //boundary: Option<Polygon<f64>>,
 ) -> GeoJson {
-    // Each zone has a name and a polygon
+    // Each zone has a label and a polygon
     let mut zones: Vec<(String, Polygon<f64>)> = Vec::new();
 
     let crs = if params.projected {
@@ -37,7 +37,7 @@ pub fn clockboard(
         ),
     ));
 
-    let mut ring_name = 'B';
+    let mut ring_label = 'B';
     for pair in params.distances.windows(2) {
         let (inner_radius, outer_radius) = (pair[0], pair[1]);
 
@@ -56,14 +56,14 @@ pub fn clockboard(
                 crs,
             );
             zones.push((
-                ring_name.to_string(),
+                ring_label.to_string(),
                 Polygon::new(outer_ring, vec![inner_ring]),
             ));
         } else {
             // Each ring is chopped into num_segments
             for idx in 0..params.num_segments {
                 zones.push((
-                    format!("{}{:02}", ring_name, idx + 1),
+                    format!("{}{:02}", ring_label, idx + 1),
                     clock_polygon(
                         center,
                         outer_radius,
@@ -78,7 +78,7 @@ pub fn clockboard(
         }
 
         // B -> C, C -> D, etc in ASCII
-        ring_name = std::char::from_u32(ring_name as u32 + 1).expect("too may rings");
+        ring_label = std::char::from_u32(ring_label as u32 + 1).expect("too may rings");
     }
 
     for (_, poly) in &mut zones {
@@ -86,14 +86,14 @@ pub fn clockboard(
     }
 
     // Transform the labelled polygons from the geo crate into the geojson crate. Ideally we could
-    // directly map each (name, polygon) into a geojson::Feature, but the conversion APIs are
+    // directly map each (label, polygon) into a geojson::Feature, but the conversion APIs are
     // confusing...
     let geom_collection: geo::GeometryCollection<f64> =
         zones.iter().map(|(_, poly)| poly.clone()).collect();
     let mut feature_collection = geojson::FeatureCollection::from(&geom_collection);
-    for (feature, (name, _)) in feature_collection.features.iter_mut().zip(zones) {
+    for (feature, (label, _)) in feature_collection.features.iter_mut().zip(zones) {
         let mut properties = serde_json::Map::new();
-        properties.insert("name".to_string(), name.into());
+        properties.insert("label".to_string(), label.into());
         feature.properties = Some(properties);
     }
     GeoJson::from(feature_collection)
