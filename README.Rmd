@@ -47,34 +47,44 @@ You can see instructions on using the tool with the following command:
 ./target/debug/zonebuilder -h
 ```
 
-Let's try making zones with fewer segments:
+Let's try making zones with fewer segments and circles (specified by the `-s` and `-d` arguments respectively):
 
 ```{r, engine='bash'}
-./target/debug/zonebuilder -s 3 > zones.geojson
+./target/debug/zonebuilder -s 3 -d 1.0,3.0 > zones.geojson
 ```
 
 
-The result:
+The The result looks like this:
+
+```{r, echo=FALSE}
+z = sf::read_sf("zones.geojson")
+plot(z, key.pos = 1)
+```
+
+You can also set the precision of outputs.
+The default is 6 decimal places, as shown in the output below:
+
+```{r}
+head(sf::st_coordinates(z))
+```
+
+Let's see the output when a precision of 2 decimal places is used:
+
+```{r, engine='bash'}
+./target/debug/zonebuilder --precision 2 > zones.geojson
+```
+
+That results in this:
 
 ```{r, echo=FALSE}
 z = sf::read_sf("zones.geojson")
 plot(z)
 ```
 
+You can run the crate as follows (note the use of `--` to pass the arguments to the zonebuilder binary not `cargo run`):
 
 ```{r, engine='bash'}
-./target/debug/zonebuilder --precision 0 > zones.geojson
-```
-
-Results in this:
-
-```{r, echo=FALSE}
-z = sf::read_sf("zones.geojson")
-plot(z)
-```
-
-```{r, engine='bash'}
-cargo run > zones.geojson
+cargo run -- --precision 3 > zones.geojson
 ```
 
 Take a look at the output:
