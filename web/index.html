@@ -82,16 +82,16 @@
 				showMarker: false,
 				autoClose: true
 			}).addTo(map);
-			map.on('geosearch/showlocation', yourEventHandler);
-			function yourEventHandler(ev) {
-				marker.setLatLng([ev.location.x, ev.location.y]);
+			map.on('geosearch/showlocation', searchFinished);
+			function searchFinished(ev) {
+				// Note the order of coordinates
+				marker.setLatLng([ev.location.y, ev.location.x]);
 			}
 
 			// Create an empty GeoJSON layer
 			var clockboard = L.geoJSON().addTo(map);
 
 			function labelZones(feature, layer) {
-				var center = L.polygon(feature.geometry.coordinates).getBounds().getCenter();
 				layer.bindTooltip(feature.properties.name);
 			}
 
