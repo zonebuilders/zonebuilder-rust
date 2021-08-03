@@ -10,6 +10,8 @@
 	<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
 		integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
 		crossorigin=""></script>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@3.3.1/dist/geosearch.css" />
+	<script src="https://unpkg.com/leaflet-geosearch@3.3.1/dist/geosearch.umd.js"></script>
 	<style>
 		body {
 			margin: 0px;
@@ -73,6 +75,17 @@
 				marker.setLatLng(e.latlng);
 			}
 			map.on('click', recenter);
+
+			// Add a search bar
+			new GeoSearch.GeoSearchControl({
+				provider: new GeoSearch.OpenStreetMapProvider(),
+				showMarker: false,
+				autoClose: true
+			}).addTo(map);
+			map.on('geosearch/showlocation', yourEventHandler);
+			function yourEventHandler(ev) {
+				marker.setLatLng([ev.location.x, ev.location.y]);
+			}
 
 			// Create an empty GeoJSON layer
 			var clockboard = L.geoJSON().addTo(map);
