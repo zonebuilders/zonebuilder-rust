@@ -92,13 +92,7 @@
 
 			function labelZones(feature, layer) {
 				var center = L.polygon(feature.geometry.coordinates).getBounds().getCenter();
-
 				layer.bindTooltip(feature.properties.name);
-
-				// TODO This doesn't seem to work...
-				var marker = L.marker(center, { opacity: 0.1 });
-				marker.bindTooltip(feature.properties.name, { permanent: true });
-				marker.addTo(map);
 			}
 
 			// When you click the generate button, recalculate and display the clockboard layer.
