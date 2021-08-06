@@ -1,4 +1,6 @@
 
+![crates.io](https://img.shields.io/crates/v/zonebuilder.svg)
+
 # zonebuilder
 
 A rust crate for building zones.
@@ -28,14 +30,17 @@ Why?
 -   For fun and education: as a simple crate it serves as a good way to
     show how Rust code is organised and how it works
 
-# Installation
+# Installation of the Rust crate
 
-## Installation with cargo
+To install the `zonebuilder` crate, you need first [install
+Rust](https://doc.rust-lang.org/cargo/getting-started/installation.html).
+Install the latest version on crates.io with
 
-To reproduce the example shown here you need to have the rust toolchain
-installed.
+``` bash
+cargo install zonebuilder
+```
 
-Assuming you do, you can install the crate as follows:
+You can install the development version as follows:
 
 ``` bash
 cargo install --git https://github.com/zonebuilders/zonebuilder-rust --branch main
