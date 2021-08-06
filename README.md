@@ -1,5 +1,5 @@
 
-![crates.io](https://img.shields.io/crates/v/zonebuilder.svg)
+[![crates.io](https://img.shields.io/crates/v/zonebuilder.svg)](https://crates.io/crates/zonebuilder)
 
 # zonebuilder
 
