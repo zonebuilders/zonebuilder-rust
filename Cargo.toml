@@ -10,6 +10,9 @@ documentation = "https://github.com/zonebuilders/zonebuilder-rust"
 repository = "https://github.com/zonebuilders/zonebuilder-rust"
 keywords = ["zones", "areal data", "zoning systems", "geo", "spatial", "geospatial"]
 categories = ["science", "command-line-utilities"]
+exclude = [
+    "web"
+]
 
 [lib]
 crate-type = ["cdylib", "lib"]
