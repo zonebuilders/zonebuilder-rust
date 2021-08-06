@@ -18,5 +18,13 @@
   "module": "zonebuilder.js",
   "homepage": "https://github.com/zonebuilders/",
   "types": "zonebuilder.d.ts",
-  "sideEffects": false
+  "sideEffects": false,
+  "keywords": [
+    "zones",
+    "areal data",
+    "zoning systems",
+    "geo",
+    "spatial",
+    "geospatial"
+  ]
 }
