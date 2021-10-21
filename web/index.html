@@ -95,9 +95,6 @@
 				layer.bindTooltip(feature.properties.label);
 			}
 
-			// When you click the generate button, recalculate and display the clockboard layer.
-			// TODO Make everything event-based -- no regenerate button. As soon as
-			// you move a slider or the marker, redraw the clockboard.
 			function regenerate() {
 				// First clear the old layer
 				clockboard.remove();
