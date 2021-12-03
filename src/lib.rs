@@ -105,7 +105,7 @@ pub fn clockboard(
 pub struct Params {
     /// The number of radial segments. Defaults to 12, like the hours on a clock.
     #[structopt(short = "s", long, default_value = "12")]
-    num_segments: usize,
+    pub num_segments: usize,
 
     /// The distances between concentric rings. `triangular_sequence` is useful to generate these
     /// distances.
@@ -115,20 +115,20 @@ pub struct Params {
         default_value = "1.0,3.0,6.0,10.0,15.0",
         use_delimiter = true
     )]
-    distances: Vec<f64>,
+    pub distances: Vec<f64>,
 
     /// The number of vertices per arc. Higher values approximate a circle more accurately.
     #[structopt(short = "v", long, default_value = "10")]
-    num_vertices_arc: usize,
+    pub num_vertices_arc: usize,
 
     /// The number of decimal places in the resulting output GeoJSON files.
     /// Set to 6 by default. Larger numbers mean more precision, but larger file sizes.
     #[structopt(short, long, default_value = "6")]
-    precision: usize,
+    pub precision: usize,
 
     /// Is the data projected?
     #[structopt(long)]
-    projected: bool,
+    pub projected: bool,
 }
 
 impl Default for Params {
