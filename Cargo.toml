@@ -1,7 +1,7 @@
 [package]
 name = "zonebuilder"
 version = "0.1.0"
-authors = ["Robin Lovelace <rob00x@gmail.com>"]
+authors = ["Robin Lovelace <rob00x@gmail.com>", "Dustin Carlino", "Stephan Hügel"]
 edition = "2018"
 license = "AGPL-3.0-or-later"
 description = "A crate and command-line interface to create regular geographic zones for urban analysis"
