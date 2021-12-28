@@ -1,10 +1,12 @@
 {
   "name": "zonebuilder",
   "collaborators": [
-    "Robin Lovelace <rob00x@gmail.com>"
+    "Robin Lovelace <rob00x@gmail.com>",
+    "Dustin Carlino",
+    "Stephan Hügel"
   ],
   "description": "A crate and command-line interface to create regular geographic zones for urban analysis",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "license": "AGPL-3.0-or-later",
   "repository": {
     "type": "git",
