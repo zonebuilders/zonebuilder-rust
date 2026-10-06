@@ -267,7 +267,35 @@ mod tests {
             panic!("not a feature collection");
         }
     }
+    #[test]
+    fn test_centre_and_labels() {
+        // London: ring A is a 1 km circle round the centre and segments are labelled as the
+        // R package (A, B01..B12, C01.. E12).
+        let (lon, lat) = (-0.1275, 51.5072);
+        let gj = clockboard(Point::new(lon, lat), Params::default());
+        let fc = match gj {
+            GeoJson::FeatureCollection(fc) => fc,
+            _ => panic!("not a feature collection"),
+        };
+        let label = |i: usize| {
+            fc.features[i].properties.as_ref().unwrap()["label"]
+                .as_str()
+                .unwrap()
+                .to_string()
+        };
+        assert_eq!(label(0), "A");
+        assert_eq!(label(1), "B01");
+        assert_eq!(label(12), "B12");
+        assert_eq!(label(48), "E12");
+        let g = Geodesic::wgs84();
+        let poly: Polygon<f64> = fc.features[0].geometry.clone().unwrap().value.try_into().unwrap();
+        for c in poly.exterior().points_iter() {
+            let d: f64 = geographiclib_rs::InverseGeodesic::inverse(&g, lat, lon, c.y(), c.x());
+            assert!((d - 1000.0).abs() < 1.0, "distance {d}");
+        }
+    }
 }
+
 
 // This code exposes make_clockboard as a regular Javascript function. It returns a GeoJSON string.
 #[cfg(target_arch = "wasm32")]
